@@ -998,7 +998,7 @@ function renderBubbles(msgs, opts){
     const hasActions = editable || canShare;
     const isOpen = openMsg && openMsg.scope===scope && openMsg.id===m.id;
     const share = canShare
-      ? `<button class="msg-share ${m.shared?"on":""}" onclick="toggleShare('${opts.subjectId}','${m.id}')">${m.shared?"✓ 전체 공유됨":"전체 공유"}</button>`
+      ? `<button class="msg-share ${m.shared?"on":""}" title="이 메시지를 팀 전체 의견방에도 보여줘요" onclick="toggleShare('${opts.subjectId}','${m.id}')">${m.shared?"✓ 팀 전체에 공유됨":"📢 팀 전체에 공유"}</button>`
       : "";
     const actions = editable
       ? `<button class="msg-share" onclick="editMsg('${scope}','${m.id}')">수정</button><button class="msg-share danger" onclick="deleteMsg('${scope}','${m.id}')">삭제</button>`
@@ -1854,7 +1854,7 @@ function renderFileRows(list, opts){
       <span class="file-name" onclick="openFile('${f.path}','${esc(f.name)}')" title="클릭하면 열려요">📄 ${esc(f.name)}</span>
       ${f.source?`<span class="sch-tag" style="background:${f.color}">${esc(f.source)}</span>`:""}
       <span class="file-meta">${fileSize(f.size)} · ${esc(f.who||"")}</span>
-      ${opts.share?`<button class="msg-share ${f.shared?"on":""}" onclick="toggleFileShare('${f.id}',${!!f.shared})">${f.shared?"✓ 전체 공유됨":"전체 공유"}</button>`:""}
+      ${opts.share?`<button class="msg-share ${f.shared?"on":""}" title="이 파일을 팀 자료함에도 보여줘요" onclick="toggleFileShare('${f.id}',${!!f.shared})">${f.shared?"✓ 팀 전체에 공유됨":"📢 팀 전체에 공유"}</button>`:""}
       <button class="del" onclick="delFile('${f.id}','${f.path}')">✕</button>
     </div>`).join("");
 }
@@ -2136,6 +2136,7 @@ function renderSubject(){
 
     <div class="panel">
       <div class="panel-head"><h3>💬 의견</h3></div>
+      <div class="home-note" style="text-align:left;margin:-2px 0 10px">이 대화는 <b>이 과목 안에서만</b> 보여요. 내 메시지를 눌러 <b>‘📢 팀 전체에 공유’</b>하면 팀 전체 의견방에도 올라가요.</div>
       ${renderBubbles((s.comments||[]), {share:true, subjectId:s.id, scope:s.id})}
       <div class="chat-input">
         <input id="subText" placeholder="메시지 입력" onkeydown="if(event.key==='Enter')addSubComment()" />

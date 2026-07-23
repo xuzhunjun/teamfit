@@ -369,6 +369,8 @@
     font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
   .band .band-btn:hover{filter:brightness(.97)}
   .landing-footer{text-align:center;color:var(--muted);font-size:13px;padding:40px 0 10px;border-top:1px solid var(--line);margin-top:20px}
+  .footer-link{display:inline-block;color:var(--accent);font-weight:600;text-decoration:none;margin-bottom:10px}
+  .footer-link:hover{text-decoration:underline}
 
   .home-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
   /* 마이페이지 · 프로필 */
@@ -432,6 +434,7 @@ const MODULES = ["역할 분담","일정 · 마감","자료 · 정리본"];
 const SB_URL = "https://ijxfyhqhemafmfpnqdbn.supabase.co";
 const SB_KEY = "sb_publishable_Ljkx-V6X2KwSw-0F95CLug_jqwNwPBU";
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
+const FEEDBACK_URL = "https://open.kakao.com/o/gK3XisFi"; /* 카카오 오픈채팅 문의·피드백 */
 
 function genCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
 
@@ -1325,6 +1328,7 @@ function renderHome(){
       </section>
 
       <footer class="landing-footer" id="contact">
+        <div><a class="footer-link" href="${FEEDBACK_URL}" target="_blank" rel="noopener">💬 문의·피드백 (카카오 오픈채팅)</a></div>
         TeamFit · 대학생 팀플·스터디 올인원
       </footer>
     </div>`;
@@ -1479,6 +1483,7 @@ function renderFeatures(){
       </section>
 
       <footer class="landing-footer">
+        <div><a class="footer-link" href="${FEEDBACK_URL}" target="_blank" rel="noopener">💬 문의·피드백 (카카오 오픈채팅)</a></div>
         TeamFit · 대학생 팀플·스터디 올인원
       </footer>
     </div>`;
@@ -1671,6 +1676,9 @@ function renderMyPage(){
 
       <button class="btn btn-ghost" style="width:100%;padding:13px;font-size:15px;margin-top:18px"
         onclick="goProfile()">⚙︎ 프로필 설정</button>
+
+      <a class="btn btn-ghost" style="display:block;width:100%;padding:13px;font-size:15px;margin-top:10px;text-align:center;text-decoration:none;box-sizing:border-box"
+        href="${FEEDBACK_URL}" target="_blank" rel="noopener">💬 문의·피드백</a>
 
       <div style="display:flex;gap:10px;margin-top:12px">
         <button class="btn btn-primary" style="flex:1;padding:12px" onclick="goTeams()">내 팀플 보기 →</button>

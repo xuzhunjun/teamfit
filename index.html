@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeamFit · 대학생 팀플 올인원</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --line:#e7e9ee; --text:#1a1c22; --muted:#8a8f99;
+    --accent:#5b6cff; --accent-soft:#eef0ff; --ok:#1aa06d; --ok-soft:#e6f6ef;
+    --radius:16px; --shadow:0 1px 3px rgba(20,24,40,.06),0 6px 24px rgba(20,24,40,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px 80px}
+
+  /* 상단 팀 헤더 */
+  .team-head{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+  .team-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .team-name{font-size:22px;font-weight:700;border:none;background:transparent;color:var(--text);
+    outline:none;flex:1;min-width:160px}
+  .team-name:focus{background:var(--accent-soft);border-radius:8px;padding:2px 8px;margin:-2px -8px}
+  .members{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .chip{background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;
+    padding:5px 11px;border-radius:999px;white-space:nowrap}
+  .chip.gray{background:#f0f1f4;color:var(--muted)}
+
+  /* 버튼 */
+  .btn{border:none;border-radius:10px;padding:9px 15px;font-size:14px;font-weight:600;
+    cursor:pointer;font-family:inherit;transition:.15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{filter:brightness(1.06)}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#f0f1f4;color:var(--text)}
+  .btn-sm{padding:6px 11px;font-size:13px}
+
+  /* 섹션 제목 */
+  .section-bar{display:flex;align-items:center;justify-content:space-between;margin:24px 4px 12px}
+  .section-bar h2{font-size:16px;font-weight:700}
+
+  /* 과목 카드 그리드 */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:18px;cursor:pointer;transition:.15s;position:relative}
+  .card:hover{transform:translateY(-2px);border-color:#d3d7e0}
+  .card .accent-line{height:4px;border-radius:4px;width:38px;margin-bottom:12px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:8px}
+  .card .mem{font-size:13px;color:var(--muted);margin-bottom:14px;min-height:18px}
+  .mods{display:flex;flex-wrap:wrap;gap:6px}
+  .mod{font-size:12px;color:var(--muted);background:#f4f5f8;padding:4px 9px;border-radius:7px}
+  .add-card{border:2px dashed var(--line);background:transparent;box-shadow:none;
+    display:flex;align-items:center;justify-content:center;color:var(--muted);
+    font-weight:600;min-height:150px;font-size:15px}
+  .add-card:hover{border-color:var(--accent);color:var(--accent);transform:none}
+  .empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:15px}
+
+  /* 탭 */
+  .tabs{display:flex;gap:2px;margin:20px 2px 18px;border-bottom:1px solid var(--line)}
+  .tab{padding:10px 16px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;
+    border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab:hover{color:var(--text)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* 캘린더 */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .cal-head h3{font-size:16px;font-weight:700}
+  .cal-nav{display:flex;align-items:center;gap:10px}
+  .cal-nav .month{font-weight:700;min-width:92px;text-align:center}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .cal-wd{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:2px 0}
+  .cal-cell{min-height:72px;border:1px solid var(--line);border-radius:9px;padding:5px 5px 6px;
+    background:var(--card);overflow:hidden}
+  .cal-cell.other{background:transparent;border-color:transparent}
+  .cal-cell.today{border-color:var(--accent);border-width:1.5px}
+  .cal-daynum{font-size:12px;color:var(--muted);margin-bottom:2px}
+  .cal-ev{font-size:11px;line-height:1.35;border-radius:5px;padding:2px 6px;margin-top:3px;color:#fff;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
+  .cal-ev.done{opacity:.45;text-decoration:line-through}
+  .cal-more{font-size:11px;color:var(--muted);margin-top:2px}
+  .cal-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+  .cal-legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .cal-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .cal-note{margin-top:12px;font-size:12px;color:var(--muted);background:#f7f8fa;
+    padding:9px 12px;border-radius:9px}
+
+  /* 상세 화면 */
+  .detail-head{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+  .back{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;
+    font-family:inherit;font-weight:600;padding:6px 0}
+  .detail-title{font-size:24px;font-weight:800}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .panel-head h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+  .row:first-of-type{border-top:none}
+  .row .who{font-weight:600;min-width:80px}
+  .row .what{flex:1;color:var(--muted)}
+  .row .date{font-size:13px;color:var(--muted)}
+  .row.done .task-title{text-decoration:line-through;color:var(--muted)}
+  .task-title{flex:1}
+  /* D-day 배지 */
+  .dday{display:inline-block;font-size:11px;font-weight:700;line-height:1.5;padding:2px 7px;
+    border-radius:8px;white-space:nowrap;flex-shrink:0}
+  .dday-over{background:#fdecea;color:#d0392e}
+  .dday-today{background:#e0574f;color:#fff}
+  .dday-soon{background:#fff2e0;color:#c9760a}
+  .dday-far{background:var(--accent-soft);color:var(--accent)}
+  /* 다가오는 마감 배너 */
+  .dl-banner{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0 4px;
+    box-shadow:0 1px 3px rgba(20,22,40,.04)}
+  .dl-head{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+  .dl-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;
+    border-radius:10px;background:#e0574f;color:#fff;font-size:11px;font-weight:700}
+  .dl-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+  .dl-item:hover .dl-title{color:var(--accent)}
+  .dl-title{flex:1;font-size:14px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dl-more{padding:8px 0 0;font-size:13px;color:var(--muted);cursor:pointer;text-align:center}
+  .dl-more:hover{color:var(--accent)}
+  .check{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0}
+  .check.on{background:var(--ok);border-color:var(--ok)}
+  .del{background:none;border:none;color:#c9ccd4;cursor:pointer;font-size:16px;padding:2px 6px}
+  .del:hover{color:#e0574f}
+  .add-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .add-row input,.add-row select{border:1px solid var(--line);border-radius:9px;padding:9px 11px;
+    font-size:14px;font-family:inherit;outline:none;background:var(--card)}
+  .add-row input:focus,.add-row select:focus{border-color:var(--accent)}
+  .add-row .grow{flex:1;min-width:120px}
+  .soon{color:var(--muted);font-size:14px;padding:8px 0}
+  .anon-item{background:#f7f8fa;border-radius:10px;padding:11px 13px;margin-bottom:8px;font-size:14px}
+
+  /* 의견 · 채팅 */
+  .chat{display:flex;flex-direction:column;gap:7px;max-height:340px;overflow-y:auto;padding:4px 2px}
+  .msg-row{display:flex;flex-direction:column;max-width:82%}
+  .msg-row.me{align-self:flex-end;align-items:flex-end}
+  .msg-row.other{align-self:flex-start;align-items:flex-start}
+  .msg{padding:8px 12px;border-radius:14px;font-size:14px;line-height:1.45;word-break:break-word}
+  .msg.me{background:var(--accent);color:#fff;border-bottom-right-radius:5px}
+  .msg.other{background:#f0f1f4;color:var(--text);border-bottom-left-radius:5px}
+  .msg-name{font-size:12px;color:var(--muted);margin:0 6px 3px}
+  .msg-src{font-size:11px;color:var(--accent);font-weight:600;margin:0 6px 2px}
+  .msg-share{background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;margin:3px 4px 0;padding:0}
+  .msg-share:hover{color:var(--accent)}
+  .msg-share.on{color:var(--ok);font-weight:600}
+  .msg-unread{font-size:11px;font-weight:700;color:#f0a020;margin:0 4px 2px;flex:none;white-space:nowrap}
+  .badge-num{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;
+    padding:0 5px;margin-left:5px;border-radius:9px;background:#e0574f;color:#fff;font-size:11px;
+    font-weight:700;line-height:1;vertical-align:middle}
+  .badge-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e0574f;
+    margin-left:5px;vertical-align:middle}
+  .chat-input{display:flex;gap:8px;margin-top:12px}
+  .chat-input select{border:1px solid var(--line);border-radius:9px;padding:9px 8px;font-size:14px;
+    font-family:inherit;outline:none;background:var(--card)}
+  .chat-input input{flex:1;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:14px;
+    font-family:inherit;outline:none}
+  .chat-input input:focus{border-color:var(--accent)}
+  .msg-actions{display:flex;gap:10px;margin:3px 4px 0}
+  .msg-actions .msg-share{margin:0}
+  .msg-share.danger{color:#c98b85}
+  .msg-share.danger:hover{color:#e0574f}
+  .msg-editbox{border:1px solid var(--accent);border-radius:12px;padding:8px 12px;font-size:14px;
+    font-family:inherit;outline:none;min-width:200px}
+  /* 과목 이름 편집 */
+  .detail-title-input{font-size:24px;font-weight:800;border:none;background:transparent;color:var(--text);
+    outline:none;font-family:inherit;flex:1;min-width:0;padding:0}
+  .detail-title-input:focus{background:var(--accent-soft);border-radius:8px;padding:2px 8px;margin:-2px -8px}
+
+  /* 모달 */
+  .overlay{position:fixed;inset:0;background:rgba(20,24,40,.4);display:flex;align-items:center;
+    justify-content:center;padding:20px;z-index:50}
+  .modal{background:var(--card);border-radius:18px;padding:24px;width:100%;max-width:420px;
+    box-shadow:0 20px 60px rgba(20,24,40,.25)}
+  .modal h3{font-size:19px;font-weight:700;margin-bottom:16px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .field input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+    font-size:15px;font-family:inherit;outline:none}
+  .field input:focus{border-color:var(--accent)}
+  .picks{display:flex;flex-wrap:wrap;gap:8px}
+  .pick{border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:13px;
+    cursor:pointer;user-select:none;font-weight:600;color:var(--muted)}
+  .pick.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+  .forgot-row{margin:-6px 0 14px}
+  .forgot-row a{font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline}
+  .forgot-row a:hover{color:var(--accent)}
+  .hidden{display:none}
+  .dberr{position:fixed;left:50%;transform:translateX(-50%);top:20px;background:#e0574f;color:#fff;
+    padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;z-index:120;max-width:90%;
+    box-shadow:0 8px 24px rgba(224,87,79,.35)}
+  /* 상단 로딩바 (불확정 진행) */
+  #busybar{position:fixed;top:0;left:0;height:3px;width:100%;z-index:100;
+    background:transparent;overflow:hidden;opacity:0;transition:opacity .2s;pointer-events:none}
+  #busybar.on{opacity:1}
+  #busybar.on::before{content:"";position:absolute;top:0;left:0;height:100%;width:40%;
+    background:var(--accent);border-radius:2px;animation:busyslide 1s ease-in-out infinite}
+  @keyframes busyslide{0%{left:-40%}100%{left:100%}}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#1aa06d;color:#fff;
+    padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;z-index:99;
+    box-shadow:0 8px 24px rgba(26,160,109,.35)}
+  /* 일정 목록의 과목 태그 */
+  .sch-tag{font-size:11px;font-weight:600;color:#fff;padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .rep{font-size:11px;margin-left:6px;opacity:.7}
+  .edit-target{cursor:pointer}
+  .edit-target:hover{color:var(--accent);text-decoration:underline dotted}
+  .file-name{flex:1;cursor:pointer;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file-name:hover{color:var(--accent);text-decoration:underline}
+  .file-meta{font-size:12px;color:var(--muted);white-space:nowrap}
+  /* 반복 일정 만들기 버튼 · 미리보기 */
+  .repeat-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;
+    border:1px dashed var(--line);background:transparent;border-radius:11px;padding:12px;
+    font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s}
+  .repeat-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .modal-sub{font-size:13px;color:var(--muted);margin:-8px 0 16px;line-height:1.5}
+  .rp-preview{margin-bottom:16px;font-size:13px;padding:12px 14px;border-radius:10px;line-height:1.6}
+  .rp-preview.muted{background:#f7f8fa;color:var(--muted)}
+  .rp-preview.ok{background:var(--accent-soft);color:var(--accent)}
+  .rp-preview.warn{background:#fdecea;color:#c0392b}
+  .rp-dates{font-weight:500;opacity:.9}
+  /* 마이페이지 2단 배치 */
+  .mp-grid{display:grid;grid-template-columns:210px 1fr;gap:26px;align-items:start;margin-bottom:20px}
+  .mp-summary{display:flex;align-items:center;gap:18px}
+  .mp-summary .avatar{flex:none}
+  .mp-summary-info{flex:1;min-width:0}
+  .mp-left{text-align:center}
+  .mp-left .avatar{margin:0 auto 12px}
+  @media(max-width:640px){ .mp-grid{grid-template-columns:1fr} .mp-left .avatar{margin-bottom:10px} }
+
+  /* ===== 랜딩(초기 화면) ===== */
+  .landing{max-width:1080px;margin:0 auto}
+  .promo{background:linear-gradient(90deg,#4b5cf5,#8455f0);color:#fff;text-align:center;
+    padding:10px 16px;margin:-20px -16px 0;font-size:13px;font-weight:500}
+  .promo b{font-weight:700}
+  .promo .promo-cta{color:#fff;font-weight:700;text-decoration:underline;cursor:pointer;white-space:nowrap}
+  .landing-nav{display:flex;align-items:center;gap:20px;padding:20px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .brand{font-size:23px;font-weight:800;letter-spacing:-.5px;cursor:pointer;user-select:none}
+  .brand:hover{opacity:.7}
+  .brand .brand-dot{color:var(--accent)}
+  .nav-menu{display:flex;gap:24px;margin-left:14px}
+  .nav-menu a{font-size:15px;font-weight:600;color:var(--muted);cursor:pointer}
+  .nav-menu a:hover{color:var(--text)}
+  .nav-btns{display:flex;gap:10px;margin-left:auto}
+  .nav-btn{border:1px solid var(--line);background:var(--card);border-radius:10px;
+    padding:9px 16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;transition:.15s}
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .nav-btn.primary{background:linear-gradient(90deg,#4b5cf5,#7b5cf0);border:none;color:#fff}
+  .nav-btn.primary:hover{filter:brightness(1.07);color:#fff}
+
+  .hero2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:64px 4px 44px}
+  .hero-eyebrow{display:inline-block;font-size:13px;font-weight:600;color:var(--accent);
+    background:var(--accent-soft);padding:6px 15px;border-radius:999px;margin-bottom:22px}
+  .hero-title{font-size:clamp(34px,4.6vw,50px);font-weight:800;letter-spacing:-1.5px;line-height:1.15;margin-bottom:20px}
+  .grad{background:linear-gradient(90deg,#4b5cf5,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-sub{font-size:clamp(15px,2.4vw,18px);color:var(--muted);margin-bottom:32px;line-height:1.6}
+  .hero-cta{font-size:16px;padding:15px 30px;border-radius:12px;
+    background:linear-gradient(90deg,#4b5cf5,#7b5cf0);box-shadow:0 10px 24px rgba(75,92,245,.32)}
+  .hero-cta:hover{filter:brightness(1.06)}
+  .hero-trust{margin-top:20px;font-size:13px;color:var(--muted);font-weight:600}
+  .hero-trust b{color:var(--accent)}
+
+  /* 앱 미리보기 목업 */
+  .preview{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 24px 60px rgba(35,40,90,.20);overflow:hidden}
+  .preview-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fafbfc}
+  .preview-bar .dot{width:10px;height:10px;border-radius:50%}
+  .preview-title{margin-left:10px;font-size:12px;color:var(--muted);font-weight:600}
+  .preview-body{padding:16px}
+  .pv-tabs{display:flex;gap:14px;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:14px;
+    border-bottom:1px solid var(--line);padding-bottom:9px}
+  .pv-tabs .on{color:var(--accent)}
+  .pv-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .pv-wd{font-size:9px;text-align:center;color:var(--muted);padding-bottom:2px}
+  .pv-cell{min-height:30px;border:1px solid var(--line);border-radius:5px;padding:3px 4px;font-size:9px;color:var(--muted)}
+  .pv-ev{height:6px;border-radius:2px;margin-top:2px}
+
+  /* 기능 상세 페이지 */
+  .fb{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center;
+    padding:54px 4px;border-top:1px solid var(--line)}
+  .fb.flip .fb-text{order:2}
+  .fb-badge{display:inline-block;font-size:12px;font-weight:700;color:var(--accent);
+    background:var(--accent-soft);padding:5px 13px;border-radius:999px;margin-bottom:14px}
+  .fb h3{font-size:clamp(21px,3.2vw,27px);font-weight:800;margin-bottom:12px;letter-spacing:-.5px}
+  .fb .lead{color:var(--muted);font-size:16px;line-height:1.65;margin-bottom:20px}
+  .fb ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .fb li{font-size:14.5px;line-height:1.6;padding-left:25px;position:relative}
+  .fb li:before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+  .fb li b{font-weight:600}
+  /* 목업 조각 */
+  .mk-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+  .mk-row:first-of-type{border-top:none}
+  .mk-name{flex:1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mk-meta{font-size:11px;color:var(--muted);white-space:nowrap}
+  .mk-chk{width:16px;height:16px;border-radius:5px;border:2px solid var(--line);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px}
+  .mk-chk.on{background:var(--ok);border-color:var(--ok)}
+  .mk-done{text-decoration:line-through;color:var(--muted)}
+  .mk-share{font-size:10px;color:var(--ok);font-weight:700;white-space:nowrap}
+  .mk-chat{display:flex;flex-direction:column;gap:8px}
+  .mk-line{display:flex;align-items:flex-end;gap:6px}
+  .mk-line.me{justify-content:flex-end}
+  .mk-av{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;
+    align-items:center;justify-content:center;font-size:11px;color:#fff}
+  .mk-bub{max-width:74%;padding:7px 11px;border-radius:12px;font-size:12.5px;line-height:1.45}
+  .mk-bub.me{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+  .mk-bub.other{background:#f0f1f4;border-bottom-left-radius:4px}
+  .mk-src{font-size:10px;color:var(--accent);font-weight:700;margin-bottom:2px}
+  .mk-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mk-card{border:1px solid var(--line);border-radius:10px;padding:12px}
+  .mk-card .bar{height:4px;width:26px;border-radius:3px;margin-bottom:8px}
+  .mk-card .ttl{font-size:13px;font-weight:700;margin-bottom:3px}
+  .mk-card .sub{font-size:11px;color:var(--muted)}
+  .mk-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+  .mk-pill{font-size:9px;color:var(--muted);background:#f4f5f8;padding:3px 7px;border-radius:5px}
+  @media(max-width:720px){
+    .fb{grid-template-columns:1fr;gap:26px;padding:36px 4px}
+    .fb.flip .fb-text{order:0}
+  }
+
+  /* 기능 섹션 */
+  .sec{padding:56px 4px}
+  .sec-head{text-align:center;margin-bottom:36px}
+  .sec-head h2{font-size:clamp(24px,4vw,32px);font-weight:800;margin-bottom:10px}
+  .sec-head p{color:var(--muted);font-size:16px}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .feat-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .feat-card .fic{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:24px;background:var(--accent-soft);margin-bottom:16px}
+  .feat-card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+  .feat-card p{color:var(--muted);font-size:14px;line-height:1.6}
+  .feat-card{transition:.15s}
+  .feat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .feat-more{margin-top:12px;font-size:13px;font-weight:700;color:var(--accent)}
+
+  /* 활용 사례 */
+  .uc-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+  .uc-chip{border:1px solid var(--line);background:var(--card);border-radius:999px;
+    padding:9px 17px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;
+    font-family:inherit;transition:.15s;white-space:nowrap}
+  .uc-chip:hover{border-color:var(--accent);color:var(--accent)}
+  .uc-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .uc-card{background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:32px 30px;box-shadow:var(--shadow)}
+  .uc-badge{display:inline-block;font-size:13px;font-weight:700;color:var(--accent);
+    background:var(--accent-soft);padding:6px 14px;border-radius:999px;margin-bottom:16px}
+  .uc-card h3{font-size:clamp(19px,3vw,24px);font-weight:800;margin-bottom:14px;letter-spacing:-.4px}
+  .uc-story{border-left:3px solid var(--accent);padding:2px 0 2px 16px;color:var(--muted);
+    font-size:15px;line-height:1.7;margin-bottom:26px}
+  .uc-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .uc-step{display:flex;flex-direction:column;gap:8px}
+  .uc-step .n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;
+    font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .uc-step b{font-size:14.5px;font-weight:700;display:block;margin-bottom:3px}
+  .uc-step span.d{font-size:13px;color:var(--muted);line-height:1.55}
+  .uc-result{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:15px;font-weight:700;color:var(--accent)}
+  @media(max-width:720px){
+    .uc-steps{grid-template-columns:1fr;gap:18px}
+    .uc-card{padding:24px 20px}
+  }
+
+  /* 요금제/CTA 밴드 */
+  .band{background:linear-gradient(120deg,#4b5cf5,#7b5cf0);border-radius:22px;padding:48px 32px;text-align:center;color:#fff;margin:20px 0}
+  .band h2{font-size:clamp(22px,4vw,30px);font-weight:800;margin-bottom:12px;color:#fff}
+  .band p{font-size:16px;opacity:.92;margin-bottom:26px}
+  .band .band-btn{background:#fff;color:var(--accent);border:none;border-radius:12px;padding:14px 30px;
+    font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+  .band .band-btn:hover{filter:brightness(.97)}
+  .landing-footer{text-align:center;color:var(--muted);font-size:13px;padding:40px 0 10px;border-top:1px solid var(--line);margin-top:20px}
+
+  .home-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
+  /* 마이페이지 · 프로필 */
+  .mypage-row{padding:12px 0;border-top:1px solid var(--line);font-size:15px;display:flex;justify-content:space-between}
+  .avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:16px;color:#fff;flex-shrink:0;background-size:cover;background-position:center;overflow:hidden;line-height:1}
+  .avatar.sm{width:28px;height:28px;font-size:14px}
+  .avatar.lg{width:72px;height:72px;font-size:34px}
+  .mp-top{display:flex;gap:16px;align-items:center;margin-bottom:22px}
+  .mp-top-info{display:flex;flex-direction:column;gap:7px}
+  .mp-nick{font-size:18px;font-weight:700}
+  .mp-upload{font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;
+    border:1px solid var(--line);border-radius:8px;padding:6px 12px;width:fit-content}
+  .mp-upload:hover{border-color:var(--accent)}
+  .mp-remove{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:0;width:fit-content;text-align:left}
+  .mp-remove:hover{color:#e0574f}
+  .pick-row{display:flex;flex-wrap:wrap;gap:8px}
+  .emoji-pick{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);
+    font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .emoji-pick.on{border-color:var(--accent);background:var(--accent-soft)}
+  .color-pick{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+  .color-pick.on{border-color:var(--text)}
+  .mp-preview{display:flex;align-items:center;gap:8px;background:#f7f8fa;border-radius:12px;padding:12px}
+  .mp-preview .msg{padding:8px 12px;border-radius:14px;font-size:14px;color:var(--text);background:#fff}
+  /* 채팅 아바타 라인 */
+  .msg-line{display:flex;gap:8px;align-items:flex-end;max-width:100%}
+  .msg-line.me{justify-content:flex-end}
+
+  @media(max-width:720px){
+    .hero2{grid-template-columns:1fr;gap:28px;padding:36px 4px 20px}
+    .nav-menu{gap:0;margin-left:10px}
+    .nav-menu a:nth-child(2){display:none}  /* 모바일에선 '요금제' 숨김, '기능'만 */
+    .feat-grid{grid-template-columns:1fr}
+  }
+
+  /* 내 팀 목록 */
+  .teams-head{margin-bottom:8px}
+  .teams-title{font-size:26px;font-weight:800;margin:6px 0 4px}
+  .teams-sub{color:var(--muted);font-size:14px;margin-bottom:8px}
+  .team-card-meta{font-size:13px;color:var(--muted);margin-top:6px}
+
+  /* 초대코드 */
+  .invite-code{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);
+    background:#f0f1f4;padding:7px 12px;border-radius:8px;white-space:nowrap;cursor:pointer;
+    border:1px solid transparent;font-family:inherit;transition:.15s}
+  .invite-code:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .btn-danger{background:#e0574f;color:#fff}
+  .btn-danger:hover{filter:brightness(1.06)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===== 데이터 (Supabase 클라우드) ===== */
+const COLORS = ["#5b6cff","#1aa06d","#e0574f","#e8942e","#9b59d6","#0aa2c0","#d6478c"];
+const TEAM_COLOR = "#3f4756"; /* 팀 공용 일정 색 (짙은 슬레이트) */
+const MODULES = ["역할 분담","일정 · 마감","자료 · 정리본"];
+
+const SB_URL = "https://ijxfyhqhemafmfpnqdbn.supabase.co";
+const SB_KEY = "sb_publishable_Ljkx-V6X2KwSw-0F95CLug_jqwNwPBU";
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+function genCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+/* 내 프로필(닉네임·아바타)만 이 브라우저에 저장. 팀 데이터는 전부 클라우드 */
+function loadMe(){ try{ return JSON.parse(localStorage.getItem("teamfit_user"))||{} }catch(e){ return {} } }
+function save(){
+  localStorage.setItem("teamfit_user", JSON.stringify({
+    me:state.me, avatarEmoji:state.avatarEmoji, avatarColor:state.avatarColor, avatarImg:state.avatarImg
+  }));
+  if(uid()) saveProfile();
+}
+
+let state = Object.assign({ me:"나", avatarEmoji:"🙂", avatarColor:"#5b6cff", avatarImg:null }, loadMe());
+state.teams = [];
+
+/* ===== 로그인(계정) ===== */
+let session = null;
+function uid(){ return session && session.user ? session.user.id : null; }
+function isLoggedIn(){ return !!uid(); }
+function myEmail(){ return session && session.user ? session.user.email : ""; }
+
+/* 내 프로필을 계정에서 불러오기 (없으면 새로 만듦) */
+async function loadProfile(){
+  if(!uid()) return;
+  const { data, error } = await sb.from("profiles").select("*").eq("id",uid()).maybeSingle();
+  if(error) return dbError(error);
+  let p = data;
+  if(!p){
+    const ins = await sb.from("profiles").insert({
+      id:uid(), nickname:(state.me==="나"?"":state.me)||"멤버",
+      avatar_emoji:state.avatarEmoji, avatar_color:state.avatarColor
+    }).select().single();
+    if(ins.error) return dbError(ins.error);
+    p = ins.data;
+  }
+  state.me = p.nickname || "멤버";
+  state.avatarEmoji = p.avatar_emoji || "🙂";
+  state.avatarColor = p.avatar_color || "#5b6cff";
+  state.avatarImg = p.avatar_img || null;
+}
+async function saveProfile(){
+  if(!uid()) return;
+  const { error } = await sb.from("profiles").update({
+    nickname:state.me, avatar_emoji:state.avatarEmoji,
+    avatar_color:state.avatarColor, avatar_img:state.avatarImg
+  }).eq("id",uid());
+  if(error) dbError(error);
+}
+
+/* DB 오류를 화면에 보여주기 */
+/* 서버/인증 영문 오류를 한글 안내로 변환. 이미 한글이면 그대로. */
+function krError(e){
+  const raw=(e && e.message ? e.message : String(e==null?"":e)).trim();
+  if(!raw) return "알 수 없는 문제가 생겼어요. 잠시 후 다시 시도해주세요.";
+  if(/[가-힣]/.test(raw)) return raw;              /* 우리 커스텀·한글 메시지는 통과 */
+  const m=raw.toLowerCase(); const has=s=>m.includes(s);
+
+  /* 인증(로그인·가입·비번) */
+  if(has("invalid login credentials"))                       return "이메일 또는 비밀번호가 맞지 않아요.";
+  if(has("email not confirmed"))                             return "이메일 인증이 필요해요. 메일함을 확인해주세요.";
+  if(has("already registered")||has("user already")||has("already exists")) return "이미 가입된 이메일이에요. 로그인해주세요.";
+  if(has("password should be at least")||has("weak password")) return "비밀번호는 6자 이상이어야 해요.";
+  if(has("should be different"))                             return "새 비밀번호가 기존과 같아요. 다른 걸 입력해주세요.";
+  if(has("unable to validate email")||has("invalid email")||has("invalid format")) return "이메일 형식이 올바르지 않아요.";
+  if(has("signups not allowed")||has("signup is disabled"))  return "지금은 회원가입을 받지 않고 있어요.";
+  if(has("rate limit")||has("for security purposes")||has("too many requests")) return "요청이 많아 잠시 제한됐어요. 잠시 후 다시 시도해주세요.";
+  if(has("token has expired")||has("expired or is invalid")||has("otp")) return "링크가 만료됐어요. 다시 요청해주세요.";
+  if(has("jwt")||(has("session")&&(has("missing")||has("expired")))) return "로그인이 만료됐어요. 다시 로그인해주세요.";
+
+  /* DB·권한 */
+  if(has("row-level security")||has("row level security")||has("permission denied")||has("not authorized")||has("violates")&&has("policy"))
+    return "권한이 없어요. 팀 멤버만 할 수 있는 작업이에요.";
+  if(has("duplicate key"))                                   return "이미 있는 항목이에요.";
+  if(has("foreign key"))                                     return "연결된 데이터가 없어 처리할 수 없어요.";
+  if(has("too long"))                                        return "입력이 너무 길어요. 조금 줄여주세요.";
+  if(has("null value")||has("not-null"))                     return "필수 항목이 비어 있어요.";
+
+  /* 네트워크 */
+  if(has("failed to fetch")||has("network")||has("load failed")||has("timeout"))
+    return "인터넷 연결이 불안정해요. 연결을 확인하고 다시 시도해주세요.";
+
+  /* 그 외: 영문 원문 대신 일반 안내 (원문은 콘솔에 남김) */
+  return "처리 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.";
+}
+
+function dbError(e){
+  console.error(e);
+  let bar=document.getElementById("dberr");
+  if(!bar){ bar=document.createElement("div"); bar.id="dberr"; bar.className="dberr"; document.body.appendChild(bar); }
+  bar.textContent = krError(e);
+  bar.style.display="block";
+  setTimeout(()=>{ bar.style.display="none"; }, 6000);
+}
+
+/* ===== 로딩 표시 (상단 얇은 바) ===== */
+let busyCount=0;
+function setBusy(on){
+  busyCount += on ? 1 : -1;
+  if(busyCount<0) busyCount=0;
+  let b=document.getElementById("busybar");
+  if(!b){ b=document.createElement("div"); b.id="busybar"; document.body.appendChild(b); }
+  b.className = busyCount>0 ? "on" : "";
+}
+
+/* 팀 목록 불러오기 */
+async function loadTeams(){
+  setBusy(true);
+  try{
+  state.teams = [];
+  if(!uid()) return;                     /* 로그인 안 했으면 팀 없음 */
+  /* 내가 멤버로 속한 팀만 */
+  const mine = await sb.from("members").select("team_id").eq("user_id", uid());
+  if(mine.error) return dbError(mine.error);
+  const myIds = [...new Set((mine.data||[]).map(r=>r.team_id))];
+  if(!myIds.length) return;
+
+  const { data, error } = await sb.from("teams").select("*").in("id",myIds).order("created_at");
+  if(error) return dbError(error);
+  const ids = (data||[]).map(t=>t.id);
+  let memRows=[], subRows=[];
+  if(ids.length){
+    const [m,s] = await Promise.all([
+      sb.from("members").select("team_id").in("team_id",ids),
+      sb.from("subjects").select("team_id").in("team_id",ids)
+    ]);
+    memRows=m.data||[]; subRows=s.data||[];
+  }
+  const countIn=(arr,id)=>arr.filter(r=>r.team_id===id).length;
+  state.teams = (data||[]).map(t=>({
+    id:t.id, name:t.name, code:t.code, created_by:t.created_by||null,
+    memberCount:countIn(memRows,t.id), subjectCount:countIn(subRows,t.id),
+    members:[], _memberRows:[], subjects:[], teamSchedule:[], teamComments:[]
+  }));
+  } finally { setBusy(false); }
+}
+
+/* 팀 하나의 전체 내용 불러오기 */
+async function loadTeam(teamId){
+  const t = state.teams.find(x=>x.id===teamId);
+  if(!t) return;
+  setBusy(true);
+  try{
+  const [mem, sub] = await Promise.all([
+    sb.from("members").select("*").eq("team_id",teamId).order("created_at"),
+    sb.from("subjects").select("*").eq("team_id",teamId).order("created_at")
+  ]);
+  if(mem.error) return dbError(mem.error);
+  if(sub.error) return dbError(sub.error);
+
+  t._memberRows = mem.data||[];
+  t.members = t._memberRows.map(m=>m.name);
+  t.subjects = (sub.data||[]).map(s=>({
+    id:s.id, name:s.name, color:s.color||"#5b6cff",
+    members:s.members||[], roles:[], schedule:[], comments:[]
+  }));
+  const byId={}; t.subjects.forEach(s=>byId[s.id]=s);
+  const ids = t.subjects.map(s=>s.id);
+
+  const [sch, com, rol, fil, rd] = await Promise.all([
+    sb.from("schedules").select("*").eq("team_id",teamId).order("date"),
+    sb.from("comments").select("*").eq("team_id",teamId).order("created_at"),
+    ids.length ? sb.from("roles").select("*").in("subject_id",ids) : Promise.resolve({data:[]}),
+    sb.from("files").select("*").eq("team_id",teamId).order("created_at"),
+    sb.from("chat_reads").select("*").eq("team_id",teamId)
+  ]);
+
+  t.teamSchedule=[];
+  (sch.data||[]).forEach(r=>{
+    const item={id:r.id,title:r.title,date:r.date,done:r.done,series_id:r.series_id||null};
+    if(r.subject_id){ if(byId[r.subject_id]) byId[r.subject_id].schedule.push(item); }
+    else t.teamSchedule.push(item);
+  });
+  (rol.data||[]).forEach(r=>{
+    if(byId[r.subject_id]) byId[r.subject_id].roles.push({id:r.id,who:r.who,what:r.what});
+  });
+  t.teamComments=[];
+  (com.data||[]).forEach(c=>{
+    const m={id:c.id,who:c.who,text:c.text,shared:c.shared,ts:new Date(c.created_at).getTime()};
+    if(c.subject_id){ if(byId[c.subject_id]) byId[c.subject_id].comments.push(m); }
+    else t.teamComments.push(m);
+  });
+
+  t.files=[]; t.subjects.forEach(s=>s.files=[]);
+  (fil.data||[]).forEach(f=>{
+    const item={id:f.id,name:f.name,path:f.path,size:f.size,who:f.uploaded_by,shared:f.shared};
+    if(f.subject_id){ if(byId[f.subject_id]) byId[f.subject_id].files.push(item); }
+    else t.files.push(item);
+  });
+
+  /* 읽음 상태: reads[scope][user_id] = 마지막 읽은 시각(ms). scope='team' 또는 subject_id */
+  t.reads = {};
+  (rd.data||[]).forEach(r=>{
+    (t.reads[r.scope] = t.reads[r.scope] || {})[r.user_id] = new Date(r.last_read_at).getTime();
+  });
+  } finally { setBusy(false); }
+}
+
+/* 변경 후 현재 팀을 다시 불러와 화면 갱신 */
+async function refresh(){ await loadTeam(view.teamId); render(); autoMarkRead(); }
+function killModal(){ const o=document.getElementById("overlay"); if(o) o.remove(); }
+
+/* ── 읽음 표시 / 안 읽음 뱃지 ── */
+/* 대화방(scope)의 메시지 목록. 'team'은 팀 피드(공유된 과목 의견 포함) */
+function scopeMsgs(scope){
+  if(scope==="team") return teamCommentFeed();
+  const s=T().subjects.find(x=>x.id===scope);
+  return s ? (s.comments||[]) : [];
+}
+/* 내가 이 대화방을 마지막으로 읽은 시각(ms) */
+function myReadMs(scope){
+  const r=T().reads;
+  return (r && r[scope] && r[scope][uid()]) || 0;
+}
+/* 내가 아직 안 읽은 메시지 수(내 메시지는 제외) */
+function unreadCount(scope){
+  const mine=myReadMs(scope), me=currentUser();
+  return scopeMsgs(scope).filter(m=>(m.ts||0)>mine && m.who!==me).length;
+}
+/* 이 팀의 모든 과목 통틀어 안 읽은 수 */
+function subjectsUnread(){
+  return (T().subjects||[]).reduce((n,s)=>n+unreadCount(s.id),0);
+}
+/* 특정 메시지(ts)를 아직 안 읽은 팀원 수 (카톡형) */
+function unreadPeople(scope, ts){
+  const t=T(), reads=(t.reads&&t.reads[scope])||{};
+  const ids=(t._memberRows||[]).map(m=>m.user_id).filter(Boolean);
+  if(ids.length<2) return 0;                 /* 혼자면 표시 안 함 */
+  let readers=0;
+  ids.forEach(id=>{ if((reads[id]||0)>=ts) readers++; });
+  return Math.max(0, ids.length-readers);
+}
+/* 안 읽음 뱃지 HTML (숫자형) */
+function unreadBadge(scope){
+  const n=unreadCount(scope);
+  return n>0 ? `<span class="badge-num">${n>99?"99+":n}</span>` : "";
+}
+/* 이 대화방을 지금 읽음으로 표시 (새 메시지가 있을 때만 DB 기록) */
+function markRead(scope){
+  if(!uid()) return;
+  const latest=scopeMsgs(scope).reduce((a,m)=>Math.max(a,m.ts||0),0);
+  if(!latest || myReadMs(scope)>=latest) return;   /* 새 메시지 없음 → 기록/재렌더 안 함(루프 방지) */
+  const t=T();
+  (t.reads[scope]=t.reads[scope]||{})[uid()]=Date.now();  /* 로컬 즉시 반영 */
+  render();
+  sb.from("chat_reads").upsert(
+    { team_id:view.teamId, user_id:uid(), scope, last_read_at:new Date().toISOString() },
+    { onConflict:"team_id,user_id,scope" }
+  ).then(({error})=>{ if(error) console.warn("read upsert:", error.message); });
+}
+/* 지금 보고 있는 대화방을 자동으로 읽음 처리 */
+function autoMarkRead(){
+  if(view.name==="subject" && view.subjectId) markRead(view.subjectId);
+  else if(view.name==="team" && activeTab==="chat") markRead("team");
+}
+
+/* ── 실시간 동기화 (Supabase realtime) ──
+   팀원이 DB를 바꾸면 변경 이벤트를 받아 현재 팀을 다시 불러온다.
+   단, 내가 입력/편집 중이면 화면을 새로 그리지 않고 잠깐 미룬다(입력 유실 방지). */
+let rtChannel = null;   /* 현재 구독 중인 채널 */
+let rtTeamId  = null;   /* 구독 중인 팀 id */
+let rtTimer   = null;   /* 디바운스/재시도 타이머 */
+
+/* 지금 다시 그리면 안 되는 상황인가 (모달·편집·입력 중) */
+function syncBusy(){
+  if(document.getElementById("overlay")) return true;   /* 모달 열림 */
+  if(editingMsg) return true;                            /* 메시지 편집 중 */
+  const a = document.activeElement;                      /* 어떤 입력칸에 커서가 있으면 */
+  if(a && (a.tagName==="INPUT" || a.tagName==="TEXTAREA" || a.isContentEditable)) return true;
+  return false;
+}
+
+/* 변경 이벤트 → 디바운스된 refresh (바쁘면 미뤘다 재시도) */
+function syncPing(){
+  clearTimeout(rtTimer);
+  rtTimer = setTimeout(function run(){
+    if(view.name!=="team" && view.name!=="subject") return;   /* 팀을 떠났으면 무시 */
+    if(syncBusy()){ rtTimer = setTimeout(run, 1500); return; } /* 입력 중이면 잠시 후 재시도 */
+    refresh();
+  }, 400);
+}
+
+/* 이 팀의 변경을 구독 (이미 같은 팀이면 그대로 둠) */
+function syncTeam(teamId){
+  if(!teamId) return;
+  if(rtTeamId===teamId && rtChannel) return;
+  syncOff();
+  rtTeamId = teamId;
+  const f = "team_id=eq."+teamId;
+  rtChannel = sb.channel("team_"+teamId)
+    .on("postgres_changes", {event:"*", schema:"public", table:"members",   filter:f}, syncPing)
+    .on("postgres_changes", {event:"*", schema:"public", table:"subjects",  filter:f}, syncPing)
+    .on("postgres_changes", {event:"*", schema:"public", table:"schedules", filter:f}, syncPing)
+    .on("postgres_changes", {event:"*", schema:"public", table:"comments",  filter:f}, syncPing)
+    .on("postgres_changes", {event:"*", schema:"public", table:"files",     filter:f}, syncPing)
+    .on("postgres_changes", {event:"*", schema:"public", table:"chat_reads",filter:f}, syncPing)
+    .on("postgres_changes", {event:"*", schema:"public", table:"roles"}, syncPing) /* roles엔 team_id 없음 → 전체 구독, RLS로 걸러짐 */
+    .subscribe();
+}
+
+/* 구독 해제 (팀을 떠나거나 로그아웃할 때) */
+function syncOff(){
+  clearTimeout(rtTimer); rtTimer=null;
+  if(rtChannel){ sb.removeChannel(rtChannel); rtChannel=null; }
+  rtTeamId=null;
+}
+
+/* 현재 보고 있는 팀 */
+function T(){
+  return state.teams.find(t=>t.id===view.teamId)
+      || {name:"",code:"",members:[],_memberRows:[],teamSchedule:[],teamComments:[],subjects:[]};
+}
+
+let view = {name:"home", teamId:null, subjectId:null};
+let activeTab = "projects";
+function setTab(t){ activeTab=t; render(); if(t==="chat") markRead("team"); }
+let editingMsg = null; /* {scope, id} 편집 중인 메시지 */
+let openMsg = null;    /* {scope, id} 액션(수정/삭제) 펼친 메시지 */
+let calCursor = null;
+
+/* ===== 캘린더: 모든 세부 프로젝트 일정을 위로 모음 ===== */
+function pad(n){ return String(n).padStart(2,"0"); }
+function allEvents(){
+  const out=[];
+  (T().teamSchedule||[]).forEach(t=>{
+    if(t.date) out.push({date:t.date,title:t.title,done:t.done,color:TEAM_COLOR,subject:"팀 전체"});
+  });
+  T().subjects.forEach(s=>{
+    (s.schedule||[]).forEach(t=>{
+      if(t.date) out.push({date:t.date,title:t.title,done:t.done,color:s.color||"#5b6cff",subject:s.name});
+    });
+  });
+  return out;
+}
+/* ===== 마감 D-day ===== */
+/* 오늘 기준 남은 일수 (음수=지남). dateStr='YYYY-MM-DD' */
+function daysUntil(dateStr){
+  if(!dateStr) return null;
+  const t=new Date(); t.setHours(0,0,0,0);
+  const d=new Date(dateStr+"T00:00"); if(isNaN(d)) return null;
+  d.setHours(0,0,0,0);
+  return Math.round((d-t)/86400000);
+}
+/* D-day 배지 HTML (완료·날짜없음·15일 이상 먼 미래엔 표시 안 함) */
+function ddayBadge(dateStr, done){
+  if(done) return "";
+  const n=daysUntil(dateStr);
+  if(n===null) return "";
+  if(n<0)   return `<span class="dday dday-over">${-n}일 지남</span>`;
+  if(n===0) return `<span class="dday dday-today">오늘 마감</span>`;
+  if(n===1) return `<span class="dday dday-soon">내일</span>`;
+  if(n<=3)  return `<span class="dday dday-soon">D-${n}</span>`;
+  if(n<=14) return `<span class="dday dday-far">D-${n}</span>`;
+  return "";
+}
+/* 팀+과목 모든 일정을 tag/color 붙여 한 배열로 */
+function allSchedItems(){
+  const all=[];
+  (T().teamSchedule||[]).forEach(t=>all.push(Object.assign({},t,{tag:"팀 전체",color:TEAM_COLOR})));
+  (T().subjects||[]).forEach(s=>(s.schedule||[]).forEach(t=>
+    all.push(Object.assign({},t,{tag:s.name,color:s.color||"#5b6cff"}))));
+  return all;
+}
+/* 마감 임박: 미완료 + (지났거나 within일 이내), 가까운 순 */
+function upcomingDeadlines(within){
+  return allSchedItems()
+    .filter(t=>!t.done && t.date)
+    .map(t=>Object.assign({},t,{diff:daysUntil(t.date)}))
+    .filter(t=>t.diff!==null && t.diff<=within)
+    .sort((a,b)=>a.diff-b.diff);
+}
+
+function initCursor(){
+  if(calCursor) return;
+  const dates=allEvents().map(e=>e.date).sort();
+  const d = dates.length ? new Date(dates[0]+"T00:00") : new Date();
+  calCursor={y:d.getFullYear(), m:d.getMonth()};
+}
+function changeMonth(delta){
+  initCursor(); let {y,m}=calCursor; m+=delta;
+  if(m<0){m=11;y--;} if(m>11){m=0;y++;}
+  calCursor={y,m}; render();
+}
+function renderCalendar(){
+  initCursor();
+  const {y,m}=calCursor;
+  const startDow=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const now=new Date();
+  const todayKey=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const byDay={};
+  allEvents().forEach(e=>{ (byDay[e.date]=byDay[e.date]||[]).push(e); });
+
+  let cells="";
+  for(let i=0;i<startDow;i++) cells+=`<div class="cal-cell other"></div>`;
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${pad(m+1)}-${pad(d)}`;
+    const evs=byDay[key]||[];
+    const shown=evs.slice(0,2).map(e=>
+      `<div class="cal-ev ${e.done?'done':''}" style="background:${e.color}" title="${esc(e.subject)} · ${esc(e.title)}">${esc(e.title)}</div>`).join("");
+    const more=evs.length>2?`<div class="cal-more">+${evs.length-2}</div>`:"";
+    cells+=`<div class="cal-cell ${key===todayKey?'today':''}"><div class="cal-daynum">${d}</div>${shown}${more}</div>`;
+  }
+  const wd=["일","월","화","수","목","금","토"].map(w=>`<div class="cal-wd">${w}</div>`).join("");
+  const legendParts=[];
+  if((T().teamSchedule||[]).some(t=>t.date))
+    legendParts.push(`<span><i style="background:${TEAM_COLOR}"></i>팀 전체</span>`);
+  T().subjects.filter(s=>(s.schedule||[]).some(t=>t.date))
+    .forEach(s=>legendParts.push(`<span><i style="background:${s.color}"></i>${esc(s.name)}</span>`));
+  const legend=legendParts.join("");
+  /* 날짜를 안 정한 일정 개수 (달력엔 못 올라감) */
+  let noDate = (T().teamSchedule||[]).filter(t=>!t.date).length;
+  (T().subjects||[]).forEach(s=>{ noDate += (s.schedule||[]).filter(t=>!t.date).length; });
+
+  return `
+    <div class="panel">
+      <div class="cal-head">
+        <h3>🗓️ 전체 일정</h3>
+        <div class="cal-nav">
+          <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">‹</button>
+          <span class="month">${y}년 ${m+1}월</span>
+          <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" style="margin-bottom:5px">${wd}</div>
+      <div class="cal-grid">${cells}</div>
+      ${legend?`<div class="cal-legend">${legend}</div>`:""}
+      ${noDate?`<div class="cal-note">🗓️ 날짜를 안 정한 일정 ${noDate}개는 아래 목록에만 표시돼요. 날짜를 넣으면 달력에 올라와요.</div>`:""}
+    </div>`;
+}
+
+/* ===== 팀 공용 일정 (세부 프로젝트 안 나눠도 팀 페이지에서 바로) ===== */
+function renderTeamSchedule(){
+  /* 팀 공용 + 모든 과목의 일정을 한 목록으로 모음 */
+  const all = allSchedItems();
+  all.sort((a,b)=>String(a.date||"9999-99-99").localeCompare(String(b.date||"9999-99-99")));
+
+  const rows = all.map(t=>{
+    if(editingSched===t.id) return schedEditRow(t);
+    return `<div class="row ${t.done?'done':''}">
+      <div class="check ${t.done?'on':''}" onclick="toggleDone('${t.id}',${!!t.done})">${t.done?'✓':''}</div>
+      <span class="task-title edit-target" onclick="editSched('${t.id}')" title="클릭해서 수정">${esc(t.title)}${t.series_id?'<span class="rep" title="반복 일정">🔁</span>':''}</span>
+      <span class="sch-tag" style="background:${t.color}">${esc(t.tag)}</span>
+      ${ddayBadge(t.date,t.done)}
+      <span class="date">${esc(t.date||'')}</span>
+      <button class="del" onclick="askDelete('${t.id}',${t.series_id?`'${t.series_id}'`:"null"})">✕</button>
+    </div>`;
+  }).join("")
+    || `<div class="soon">아직 일정이 없어요. 아래에서 팀 전체 일정을 넣거나, 과목 안에서 마감을 추가해보세요.</div>`;
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>📌 일정 목록 <span style="font-size:12px;font-weight:500;color:var(--muted)">팀 + 모든 과목</span></h3></div>
+      ${rows}
+      <div class="add-row">
+        <input class="grow" id="teamTaskTitle" placeholder="할 일 / 마감 (팀 전체가 함께)" />
+        <input id="teamTaskDate" type="date" value="${todayStr()}" />
+        <button class="btn btn-primary btn-sm" onclick="addTeamTask()">추가</button>
+      </div>
+      <button class="repeat-btn" onclick="repeatStart(null)">🔁 매주·격주로 반복되는 일정 만들기</button>
+    </div>`;
+}
+
+/* ===== 프로필 · 아바타 ===== */
+function currentUser(){ return state.me || "나"; }
+/* 오늘 날짜 YYYY-MM-DD (로컬 기준, 타임존 밀림 방지) */
+function todayStr(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function colorForName(name){
+  const cs=["#5b6cff","#1aa06d","#e0574f","#e8942e","#9b59d6","#0aa2c0","#d6478c"];
+  let h=0; for(const ch of (name||"?")) h=(h*31+ch.charCodeAt(0))>>>0;
+  return cs[h%cs.length];
+}
+function avatarMarkup(p, cls){
+  cls = cls?(" "+cls):"";
+  if(p.avatarImg) return `<span class="avatar${cls}" style="background-image:url('${p.avatarImg}')"></span>`;
+  return `<span class="avatar${cls}" style="background:${p.avatarColor||'#5b6cff'}">${esc(p.avatarEmoji||'🙂')}</span>`;
+}
+function avatarHtml(who, cls){
+  if(who===currentUser()) return avatarMarkup(state, cls);
+  cls = cls?(" "+cls):"";
+  return `<span class="avatar${cls}" style="background:${colorForName(who)}">${esc((who||'?').slice(0,1))}</span>`;
+}
+function toast(msg){
+  let el=document.getElementById("toast");
+  if(!el){ el=document.createElement("div"); el.id="toast"; el.className="toast"; document.body.appendChild(el); }
+  el.textContent=msg; el.style.display="block";
+  clearTimeout(window.__toastT);
+  window.__toastT=setTimeout(()=>{ el.style.display="none"; },2200);
+}
+
+/* 마이페이지: 편집 중인 임시본(draft) — 저장 눌러야 확정 */
+let mpDraft = null;
+function mpDirty(){
+  if(!mpDraft) return false;
+  return mpDraft.me!==state.me || mpDraft.avatarEmoji!==state.avatarEmoji
+      || mpDraft.avatarColor!==state.avatarColor || mpDraft.avatarImg!==state.avatarImg;
+}
+function setAvatarEmoji(e){ if(mpDraft){ mpDraft.avatarEmoji=e; mpDraft.avatarImg=null; render(); } }
+function setAvatarColor(c){ if(mpDraft){ mpDraft.avatarColor=c; render(); } }
+function clearAvatarImg(){ if(mpDraft){ mpDraft.avatarImg=null; render(); } }
+function mpSave(){
+  if(!mpDraft) return;
+  state.me = (mpDraft.me||"").trim() || "나";
+  state.avatarEmoji = mpDraft.avatarEmoji;
+  state.avatarColor = mpDraft.avatarColor;
+  state.avatarImg   = mpDraft.avatarImg;
+  mpDraft = {me:state.me, avatarEmoji:state.avatarEmoji, avatarColor:state.avatarColor, avatarImg:state.avatarImg};
+  save(); render(); toast("저장됐어요 ✓");
+}
+function onAvatarFile(input){
+  const f=input.files&&input.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const size=128, c=document.createElement("canvas"); c.width=size; c.height=size;
+      const ctx=c.getContext("2d");
+      const s=Math.min(img.width,img.height);
+      ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
+      if(mpDraft){ mpDraft.avatarImg=c.toDataURL("image/jpeg",0.85); render(); }
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+/* ===== 의견 · 채팅 ===== */
+function renderBubbles(msgs, opts){
+  opts=opts||{};
+  const scope=opts.scope;
+  if(!msgs.length) return `<div class="soon">아직 대화가 없어요. 첫 메시지를 남겨보세요.</div>`;
+  return `<div class="chat">` + msgs.map(m=>{
+    const me = m.who===currentUser();
+    const src = m.source ? `<div class="msg-src">📎 ${esc(m.source)}에서 공유</div>` : "";
+    const name = !me ? `<div class="msg-name">${esc(m.who)}</div>` : "";
+
+    const av = avatarHtml(m.who,"sm");
+
+    /* 편집 중인 메시지는 입력창으로 */
+    if(editingMsg && editingMsg.scope===scope && editingMsg.id===m.id){
+      const row=`<div class="msg-row ${me?"me":"other"}">${src}${name}
+        <input class="msg-editbox" id="msgedit_${m.id}" value="${esc(m.text)}"
+          onkeydown="if(event.key==='Enter')saveMsgEdit('${scope}','${m.id}')" />
+        <div class="msg-actions">
+          <button class="msg-share" onclick="saveMsgEdit('${scope}','${m.id}')">저장</button>
+          <button class="msg-share" onclick="cancelEdit()">취소</button>
+        </div></div>`;
+      return `<div class="msg-line ${me?"me":"other"}">${me?"":av}${row}${me?av:""}</div>`;
+    }
+
+    /* 수정/삭제·공유는 내 메시지에만. (팀 화면의 공유된 메시지는 원 프로젝트에서 수정) */
+    const editable = me && ((scope && scope!=="team") || !m.source);
+    const canShare = opts.share && me;
+    const hasActions = editable || canShare;
+    const isOpen = openMsg && openMsg.scope===scope && openMsg.id===m.id;
+    const share = canShare
+      ? `<button class="msg-share ${m.shared?"on":""}" onclick="toggleShare('${opts.subjectId}','${m.id}')">${m.shared?"✓ 전체 공유됨":"전체 공유"}</button>`
+      : "";
+    const actions = editable
+      ? `<button class="msg-share" onclick="editMsg('${scope}','${m.id}')">수정</button><button class="msg-share danger" onclick="deleteMsg('${scope}','${m.id}')">삭제</button>`
+      : "";
+    const controls = (isOpen && hasActions) ? `<div class="msg-actions">${share}${actions}</div>` : "";
+    const clickAttr = hasActions ? ` onclick="toggleMsg('${scope}','${m.id}')" style="cursor:pointer"` : "";
+    const row=`<div class="msg-row ${me?"me":"other"}">${src}${name}<div class="msg ${me?"me":"other"}"${clickAttr}>${esc(m.text)}</div>${controls}</div>`;
+    const un = scope ? unreadPeople(scope, m.ts||0) : 0;
+    const unTag = un>0 ? `<span class="msg-unread" title="아직 ${un}명이 안 읽음">${un}</span>` : "";
+    return `<div class="msg-line ${me?"me":"other"}">${me?unTag:""}${me?"":av}${row}${me?av:""}${me?"":unTag}</div>`;
+  }).join("") + `</div>`;
+}
+function teamCommentFeed(){
+  const feed=(T().teamComments||[]).map(m=>({...m}));
+  T().subjects.forEach(s=>{
+    (s.comments||[]).filter(c=>c.shared).forEach(c=>feed.push({...c, source:s.name}));
+  });
+  feed.sort((a,b)=>(a.ts||0)-(b.ts||0));
+  return feed;
+}
+function renderTeamChat(){
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>💬 팀 의견</h3></div>
+      ${renderBubbles(teamCommentFeed(), {scope:"team"})}
+      <div class="chat-input">
+        <input id="teamText" placeholder="메시지 입력" onkeydown="if(event.key==='Enter')addTeamComment()" />
+        <button class="btn btn-primary btn-sm" onclick="addTeamComment()">전송</button>
+      </div>
+    </div>`;
+}
+async function addTeamComment(){
+  const who=currentUser(); const text=val("teamText").trim(); if(!text) return;
+  const { error } = await sb.from("comments").insert({team_id:view.teamId, subject_id:null, who, text});
+  if(error) return dbError(error);
+  await refresh();
+}
+async function addSubComment(){
+  const s=cur(); const who=currentUser(); const text=val("subText").trim(); if(!text) return;
+  const { error } = await sb.from("comments").insert({team_id:view.teamId, subject_id:s.id, who, text, shared:false});
+  if(error) return dbError(error);
+  await refresh();
+}
+async function toggleShare(subjectId,msgId){
+  const s=T().subjects.find(x=>x.id===subjectId); if(!s) return;
+  const m=(s.comments||[]).find(c=>c.id===msgId); if(!m) return;
+  const { error } = await sb.from("comments").update({shared:!m.shared}).eq("id",msgId);
+  if(error) return dbError(error);
+  await refresh();
+}
+/* 메시지: 클릭하면 액션(수정/삭제) 펼침 */
+function toggleMsg(scope,id){
+  openMsg = (openMsg && openMsg.scope===scope && openMsg.id===id) ? null : {scope,id};
+  render();
+}
+function editMsg(scope,id){
+  editingMsg={scope,id}; openMsg=null; render();
+  const el=document.getElementById("msgedit_"+id);
+  if(el){ el.focus(); el.setSelectionRange(el.value.length,el.value.length); }
+}
+async function saveMsgEdit(scope,id){
+  const el=document.getElementById("msgedit_"+id);
+  const v=el?el.value.trim():"";
+  editingMsg=null;
+  if(v){
+    const { error } = await sb.from("comments").update({text:v}).eq("id",id);
+    if(error) return dbError(error);
+  }
+  await refresh();
+}
+function cancelEdit(){ editingMsg=null; render(); }
+async function deleteMsg(scope,id){
+  const { error } = await sb.from("comments").delete().eq("id",id);
+  if(error) return dbError(error);
+  editingMsg=null; openMsg=null; await refresh();
+}
+/* 과목 이름 변경 */
+/* ===== 과목 설정: 담당자 변경 · 삭제 ===== */
+function subjectSettings(){
+  const s=cur(); if(!s) return;
+  const picks = T().members.map(m=>
+    `<span class="pick ${(s.members||[]).includes(m)?'on':''}" onclick="this.classList.toggle('on')" data-m="${esc(m)}">${esc(m)}</span>`
+  ).join("") || `<span class="soon">팀에 멤버가 없어요. 먼저 멤버를 추가하세요.</span>`;
+  const cnt = `일정 ${(s.schedule||[]).length}개 · 자료 ${(s.files||[]).length}개 · 의견 ${(s.comments||[]).length}개 · 역할 ${(s.roles||[]).length}개`;
+  showModal(`
+    <h3>⚙︎ 과목 설정</h3>
+    <div class="modal-sub"><b>${esc(s.name)}</b><br>${cnt}</div>
+
+    <div class="field">
+      <label>담당 멤버 (눌러서 켜고 끄기)</label>
+      <div class="picks" id="subjEditPicks">${picks}</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:11px" onclick="saveSubjectMembers()">담당 멤버 저장</button>
+
+    <div class="field" style="margin:22px 0 0">
+      <label>과목 삭제</label>
+      <div class="home-note" style="text-align:left;margin:0 0 8px">이 과목의 일정·자료·의견·역할이 함께 사라져요.</div>
+      <button class="btn btn-danger" style="width:100%;padding:11px" onclick="confirmDeleteSubject()">이 과목 삭제</button>
+    </div>
+
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">닫기</button></div>`);
+}
+async function saveSubjectMembers(){
+  const s=cur(); if(!s) return;
+  const members=[...document.querySelectorAll("#subjEditPicks .pick.on")].map(e=>e.dataset.m);
+  const { error } = await sb.from("subjects").update({members}).eq("id",s.id);
+  if(error) return dbError(error);
+  killModal(); await refresh(); toast("담당 멤버를 저장했어요");
+}
+function confirmDeleteSubject(){
+  const s=cur(); if(!s) return;
+  showModal(`
+    <h3 style="color:#c0392b">과목 삭제</h3>
+    <div class="modal-sub"><b>${esc(s.name)}</b>과 그 안의 <b>일정·자료·의견·역할</b>이 모두 사라져요.<br><b>되돌릴 수 없어요.</b></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-danger" onclick="deleteSubject()">삭제</button>
+    </div>`);
+}
+async function deleteSubject(){
+  const s=cur(); if(!s) return;
+  /* 저장소 파일은 DB 연쇄삭제로 안 지워지므로 먼저 정리 */
+  const paths=(s.files||[]).map(f=>f.path);
+  if(paths.length){
+    const rm = await sb.storage.from("files").remove(paths);
+    if(rm.error) return dbError(rm.error);
+  }
+  const { error } = await sb.from("subjects").delete().eq("id",s.id);
+  if(error) return dbError(error);
+  killModal();
+  view={name:"team", teamId:view.teamId};
+  await loadTeam(view.teamId); render();
+  toast("과목을 삭제했어요");
+}
+
+async function renameSubject(id,value){
+  const v=(value||"").trim(); if(!v) return;
+  const { error } = await sb.from("subjects").update({name:v}).eq("id",id);
+  if(error) return dbError(error);
+  await refresh();
+}
+
+/* ===== 렌더 ===== */
+const app = document.getElementById("app");
+function render(){
+  /* 다시 그리기 전, 채팅 스크롤 상태를 기억 (전체 리렌더로 사라지므로) */
+  const oldChat=document.querySelector(".chat");
+  let stick, oldTop=0;
+  if(oldChat){
+    oldTop=oldChat.scrollTop;
+    /* 맨 아래 60px 이내면 새 메시지를 따라 내려감, 위로 올려 읽던 중이면 위치 보존 */
+    stick=(oldChat.scrollHeight - oldChat.scrollTop - oldChat.clientHeight) < 60;
+  } else {
+    stick=true;  /* 방금 대화방을 열었으면 최신(맨 아래)으로 */
+  }
+
+  if(view.name==="home") renderHome();
+  else if(view.name==="features") renderFeatures();
+  else if(view.name==="mypage") renderMyPage();
+  else if(view.name==="profile") renderProfile();
+  else if(view.name==="teams") renderTeams();
+  else if(view.name==="subject") renderSubject();
+  else renderDashboard();
+
+  const newChat=document.querySelector(".chat");
+  if(newChat) newChat.scrollTop = stick ? newChat.scrollHeight : oldTop;
+}
+
+/* ===== 랜딩(초기 화면) ===== */
+function scrollToId(id){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:"smooth"}); }
+/* ===== 활용 사례 데이터 ===== */
+const USE_CASES = [
+  { badge:"📚 학업 스터디", title:"분담은 한눈에, 마감은 자동으로",
+    story:"“누가 어느 과목을 맡았는지, 언제까지인지가 카톡 어딘가에 흩어져 있었어요. 매주 스크롤을 올려 다시 찾고, 결국 한 사람이 계속 정리해줘야 했죠.”",
+    steps:[
+      ["팀 만들고 초대","초대코드 하나만 보내면 스터디원이 바로 합류해요."],
+      ["과목별로 나누기","과목을 추가하고 담당자를 지정하면 역할·일정·자료 칸이 자동으로 생겨요."],
+      ["제출일 한 번에 등록","주차별 마감을 매주·격주 반복으로 걸어두면 학기 끝까지 채워져요."],
+      ["정리본 모으기","완성한 자료는 과목 자료함에, 다 같이 볼 건 전체 공유로."]],
+    result:"→ 이번 주에 누가 뭘 언제까지 해야 하는지, 한 화면에서 끝." },
+
+  { badge:"📝 조별 과제", title:"역할과 마감을, 첫 회의에서 끝내기",
+    story:"“첫 회의 땐 다 정한 것 같았는데, 발표 3일 전에 보면 누가 뭘 하기로 했는지 아무도 정확히 기억을 못 해요. 파일도 ‘최종_최종2’가 여기저기 흩어져 있고요.”",
+    steps:[
+      ["과제별로 만들기","한 학기에 팀플이 여러 개여도 서로 섞이지 않아요."],
+      ["역할 적어두기","자료조사·PPT·발표, 누가 뭘 맡았는지 기록으로 남겨요."],
+      ["발표일 기준 마감","초안·리허설까지 단계별로 날짜를 잡아둬요."],
+      ["파일은 한 곳에","최신 자료가 어디 있는지 헷갈릴 일이 없어요."]],
+    result:"→ “그거 누가 하기로 했지?”를 다시 묻지 않아도 됩니다." },
+
+  { badge:"🏛️ 학생회", title:"부서별로 나누고, 전체로 모으고",
+    story:"“부서마다 단톡방이 따로 있는데, 전체 회의 때 각 부서가 뭘 하고 있는지 모아서 정리하는 게 매번 큰 일이었어요.”",
+    steps:[
+      ["부서별로 나누기","기획·홍보·총무를 각각의 공간으로 만들어요."],
+      ["부서 안에서 논의","그 부서 사람만 보는 대화방과 자료함에서 편하게."],
+      ["안건만 전체로","전체 공유를 누른 것만 학생회 전체에 올라가요."],
+      ["정기 회의 등록","매주 회의를 학기 말까지 한 번에 걸어둬요."]],
+    result:"→ 부서 논의는 부서 안에서, 전체가 알아야 할 것만 위로." },
+
+  { badge:"🎪 동아리", title:"매년 반복되는 인수인계, 한 번에",
+    story:"“선배들이 쓰던 자료가 개인 드라이브나 졸업한 사람 카톡에 있어서, 매년 처음부터 다시 만드는 기분이었어요.”",
+    steps:[
+      ["동아리 팀 하나","기수가 바뀌어도 팀과 자료는 그대로 남아요."],
+      ["활동별로 나누기","정기모임·공연·MT를 각각 관리해요."],
+      ["자료는 팀 자료함에","회칙·기획서·예산안을 한곳에 쌓아둬요."],
+      ["새 부원은 코드로","들어오자마자 지난 기록을 바로 볼 수 있어요."]],
+    result:"→ 다음 기수가 처음부터 다시 만들지 않아도 됩니다." },
+
+  { badge:"🚀 공모전·사이드 프로젝트", title:"마감까지 남은 일이, 흐르지 않게",
+    story:"“마감은 정해져 있는데 각자 진도가 어디까지인지 몰라서, 결국 마지막 주에 몰아서 하게 되더라고요.”",
+    steps:[
+      ["마감일부터 거꾸로","제출일을 먼저 넣고 중간 점검일을 채워요."],
+      ["파트별로 나누기","기획·개발·디자인을 각각의 공간으로."],
+      ["완료 체크로 진도","끝난 일은 취소선으로 바로 표시돼요."],
+      ["산출물은 자료함에","버전이 섞이지 않게 한곳에 모아요."]],
+    result:"→ 마지막 주에 몰아서 하지 않게 됩니다." }
+];
+let ucActive = 0;
+function ucCardHtml(c){
+  return `<div class="uc-card">
+    <h3>${c.title}</h3>
+    <p class="uc-story">${c.story}</p>
+    <div class="uc-steps">
+      ${c.steps.map((s,i)=>`<div class="uc-step"><span class="n">${i+1}</span>
+        <div><b>${s[0]}</b><span class="d">${s[1]}</span></div></div>`).join("")}
+    </div>
+    <div class="uc-result">${c.result}</div>
+  </div>`;
+}
+function setUseCase(i){
+  ucActive = i;
+  const box = document.getElementById("ucBox");
+  if(box) box.innerHTML = ucCardHtml(USE_CASES[i]);
+  document.querySelectorAll(".uc-chip").forEach((c,idx)=>c.classList.toggle("on", idx===i));
+}
+
+/* 예시용 미니 캘린더 (랜딩·기능소개에서 재사용) */
+function miniCalHtml(){
+  const wd=["일","월","화","수","목","금","토"].map(w=>`<div class="pv-wd">${w}</div>`).join("");
+  const evMap={5:["#1d9e75"],11:["#5b6cff"],12:["#3f4756"],18:["#e0574f"],19:["#5b6cff","#1d9e75"],25:["#e8942e"]};
+  let cells="";
+  for(let i=0;i<3;i++) cells+=`<div class="pv-cell" style="border-color:transparent"></div>`;
+  for(let d=1;d<=28;d++){
+    const evs=(evMap[d]||[]).map(c=>`<div class="pv-ev" style="background:${c}"></div>`).join("");
+    cells+=`<div class="pv-cell">${d}${evs}</div>`;
+  }
+  return `<div class="pv-cal">${wd}${cells}</div>`;
+}
+/* 목업 창 틀 */
+function mockWindow(title, inner){
+  return `<div class="preview">
+    <div class="preview-bar">
+      <span class="dot" style="background:#ff5f57"></span>
+      <span class="dot" style="background:#febc2e"></span>
+      <span class="dot" style="background:#28c840"></span>
+      <span class="preview-title">${esc(title)}</span>
+    </div>
+    <div class="preview-body">${inner}</div>
+  </div>`;
+}
+function renderHome(){
+  app.innerHTML = `
+    <div class="landing">
+      <div class="promo"><b>🎉 베타 오픈</b> — 지금은 모든 기능 무료 · <span class="promo-cta" onclick="signupStart()">지금 시작하기 →</span></div>
+
+      <nav class="landing-nav">
+        <div class="brand" onclick="location.reload()" title="새로고침">TeamFit<span class="brand-dot">.</span></div>
+        <div class="nav-menu">
+          <a onclick="goFeatures()">기능</a>
+          <a onclick="scrollToId('pricing')">요금제</a>
+        </div>
+        <div class="nav-btns">
+          ${isLoggedIn()
+            ? `<button class="nav-btn" onclick="goMyPage()">마이페이지</button>
+               <button class="nav-btn primary" onclick="goTeams()">팀플 입장하기</button>`
+            : `<button class="nav-btn" onclick="loginStart()">로그인</button>
+               <button class="nav-btn primary" onclick="signupStart()">회원가입</button>`}
+        </div>
+      </nav>
+
+      <section class="hero2">
+        <div class="hero-left">
+          <div class="hero-eyebrow">대학생 팀플·스터디 올인원</div>
+          <h1 class="hero-title">쉬워진 팀플,<br><span class="grad">TeamFit</span> 하나로 끝.</h1>
+          <p class="hero-sub">자료 정리 · 일정 관리 · 의견 공유까지,<br>흩어진 팀플을 한 곳에서.</p>
+          <button class="btn btn-primary hero-cta" onclick="${isLoggedIn()?'goTeams()':'signupStart()'}">${isLoggedIn()?'나의 팀플 들어가기 →':'무료로 시작하기 →'}</button>
+          <div class="hero-trust">✓ 설치 없이 웹에서 바로 · 팀원 초대는 <b>코드 하나</b>로</div>
+        </div>
+        <div class="hero-right">
+          <div class="preview">
+            <div class="preview-bar">
+              <span class="dot" style="background:#ff5f57"></span>
+              <span class="dot" style="background:#febc2e"></span>
+              <span class="dot" style="background:#28c840"></span>
+              <span class="preview-title">TeamFit · 우리 팀</span>
+            </div>
+            <div class="preview-body">
+              <div class="pv-tabs"><span class="on">📅 일정</span><span>📁 과목·프로젝트</span><span>💬 의견</span></div>
+              ${miniCalHtml()}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="features">
+        <div class="sec-head">
+          <h2>팀플에 필요한 건 다 있어요</h2>
+          <p>따로따로 관리하던 걸 하나로 모았어요.</p>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-files')"><div class="fic">📁</div><h3>자료 정리</h3><p>정리본·과제 파일을 팀과 세부 프로젝트별로 깔끔하게. 흩어진 카톡·메일에서 그만 찾으세요.</p><div class="feat-more">자세히 보기 →</div></div>
+          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-schedule')"><div class="fic">📅</div><h3>일정 관리</h3><p>과목별 마감과 완료가 하나의 캘린더로 모여요. "이번 주 뭐 있지?"를 한눈에.</p><div class="feat-more">자세히 보기 →</div></div>
+          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-chat')"><div class="fic">💬</div><h3>의견 공유</h3><p>팀·세부 프로젝트별 대화방. 필요한 의견만 전체에 공유하고 나머진 팀 안에서.</p><div class="feat-more">자세히 보기 →</div></div>
+        </div>
+      </section>
+
+      <section class="sec" id="usecases" style="padding-top:12px">
+        <div class="sec-head">
+          <h2>이렇게 쓰고 있어요</h2>
+          <p>단순 팀플부터 소규모 조직 운영까지</p>
+        </div>
+        <div class="uc-chips">
+          ${USE_CASES.map((c,i)=>`<button class="uc-chip ${i===ucActive?'on':''}" onclick="setUseCase(${i})">${c.badge}</button>`).join("")}
+        </div>
+        <div id="ucBox">${ucCardHtml(USE_CASES[ucActive])}</div>
+      </section>
+
+      <section class="band" id="pricing">
+        <h2>지금은 베타 — 모든 기능 무료</h2>
+        <p>팀 만들고, 코드로 초대하고, 바로 시작하세요.</p>
+        <button class="band-btn" onclick="signupStart()">무료로 시작하기 →</button>
+      </section>
+
+      <footer class="landing-footer" id="contact">
+        TeamFit · 대학생 팀플·스터디 올인원
+      </footer>
+    </div>`;
+}
+/* ===== 기능 상세 소개 ===== */
+function goFeatures(anchor){
+  view={name:"features"}; render();
+  if(anchor) setTimeout(()=>{ const el=document.getElementById(anchor); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+}
+function featureBlock(o){
+  return `
+    <section class="fb ${o.flip?'flip':''}" id="${o.id}">
+      <div class="fb-text">
+        <span class="fb-badge">${o.badge}</span>
+        <h3>${o.title}</h3>
+        <p class="lead">${o.lead}</p>
+        <ul>${o.points.map(p=>`<li>${p}</li>`).join("")}</ul>
+      </div>
+      <div class="fb-mock">${o.mock}</div>
+    </section>`;
+}
+function renderFeatures(){
+  const mockFiles = mockWindow("TeamFit · 자료", `
+    <div class="mk-row"><span class="mk-name">📄 3주차_정리본.pdf</span>
+      <span class="sch-tag" style="background:#5b6cff">약품분석학1</span>
+      <span class="mk-meta">277 KB</span></div>
+    <div class="mk-row"><span class="mk-name">📄 발표자료_최종.pptx</span>
+      <span class="sch-tag" style="background:#1aa06d">유기약화학1</span>
+      <span class="mk-meta">1.4 MB</span></div>
+    <div class="mk-row"><span class="mk-name">📄 스터디_규칙.docx</span>
+      <span class="sch-tag" style="background:#3f4756">팀 전체</span>
+      <span class="mk-meta">15 KB</span></div>
+    <div class="mk-row"><span class="mk-name" style="color:var(--muted)">＋ 자료 올리기</span>
+      <span class="mk-share">✓ 전체 공유됨</span></div>`);
+
+  const mockSched = mockWindow("TeamFit · 일정", `
+    ${miniCalHtml()}
+    <div style="margin-top:12px">
+      <div class="mk-row"><span class="mk-chk on">✓</span>
+        <span class="mk-name mk-done">1~2주차 제출 🔁</span>
+        <span class="sch-tag" style="background:#5b6cff">약품분석학1</span></div>
+      <div class="mk-row"><span class="mk-chk"></span>
+        <span class="mk-name">3~4주차 제출 🔁</span>
+        <span class="sch-tag" style="background:#5b6cff">약품분석학1</span></div>
+      <div class="mk-row"><span class="mk-chk"></span>
+        <span class="mk-name">전체 회의</span>
+        <span class="sch-tag" style="background:#3f4756">팀 전체</span></div>
+    </div>`);
+
+  const mockChat = mockWindow("TeamFit · 의견", `
+    <div class="mk-chat">
+      <div class="mk-line other">
+        <span class="mk-av" style="background:#1aa06d">김</span>
+        <div><div class="mk-src">📎 약품분석학1에서 공유</div>
+          <div class="mk-bub other">다음 모임 목요일 6시로 할게요</div></div>
+      </div>
+      <div class="mk-line me">
+        <div class="mk-bub me">확인했어요! 자료는 제가 올릴게요</div>
+        <span class="mk-av" style="background:#e8942e">🦊</span>
+      </div>
+      <div class="mk-line other">
+        <span class="mk-av" style="background:#5b6cff">이</span>
+        <div class="mk-bub other">저는 발표 파트 준비할게요</div>
+      </div>
+    </div>`);
+
+  const mockTeam = mockWindow("TeamFit · 우리 팀", `
+    <div class="pv-tabs"><span class="on">📁 과목·프로젝트</span><span>📅 일정</span><span>💬 의견</span></div>
+    <div class="mk-grid2">
+      <div class="mk-card"><div class="bar" style="background:#5b6cff"></div>
+        <div class="ttl">약품분석학1</div><div class="sub">김·황 2명</div>
+        <div class="mk-pills"><span class="mk-pill">역할</span><span class="mk-pill">일정</span><span class="mk-pill">자료</span></div></div>
+      <div class="mk-card"><div class="bar" style="background:#1aa06d"></div>
+        <div class="ttl">유기약화학1</div><div class="sub">이·허 2명</div>
+        <div class="mk-pills"><span class="mk-pill">역할</span><span class="mk-pill">일정</span><span class="mk-pill">자료</span></div></div>
+      <div class="mk-card"><div class="bar" style="background:#e0574f"></div>
+        <div class="ttl">해부생리학1</div><div class="sub">서·손 2명</div>
+        <div class="mk-pills"><span class="mk-pill">역할</span><span class="mk-pill">일정</span><span class="mk-pill">자료</span></div></div>
+      <div class="mk-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:600">＋ 과목 추가</div>
+    </div>`);
+
+  app.innerHTML = `
+    <div class="landing">
+      <nav class="landing-nav">
+        <div class="brand" onclick="location.reload()" title="새로고침">TeamFit<span class="brand-dot">.</span></div>
+        <div class="nav-menu">
+          <a onclick="goHome()">홈</a>
+          <a onclick="scrollToId('f-team')">기능</a>
+        </div>
+        <div class="nav-btns">
+          ${isLoggedIn()
+            ? `<button class="nav-btn" onclick="goMyPage()">마이페이지</button>
+               <button class="nav-btn primary" onclick="goTeams()">팀플 입장하기</button>`
+            : `<button class="nav-btn" onclick="loginStart()">로그인</button>
+               <button class="nav-btn primary" onclick="signupStart()">회원가입</button>`}
+        </div>
+      </nav>
+
+      <div class="sec-head" style="padding:56px 0 8px">
+        <h2>TeamFit이 하는 일</h2>
+        <p>흩어져 있던 팀플의 모든 것을 한 곳에서.</p>
+      </div>
+
+      ${featureBlock({
+        id:"f-team", badge:"구조", title:"팀 하나, 그 안에 여러 과목",
+        lead:"팀을 한 번 만들면 멤버가 모이고, 과목이나 부서는 그 안에서 필요한 사람만 골라 만들어요. 매번 새로 세팅할 필요가 없어요.",
+        points:[
+          "<b>과목 추가 버튼 하나</b>로 역할·일정·자료 칸이 자동 생성",
+          "과목마다 <b>담당 멤버를 따로</b> 지정 — 같은 사람이 여러 과목에 들어가도 OK",
+          "나눌 필요 없는 팀은 <b>과목 없이 팀 단위로만</b> 써도 돼요",
+          "팀원 초대는 <b>초대코드 하나</b> — 복사해서 보내면 끝",
+          "학생회·동아리라면 과목 자리에 <b>부서</b>를 넣어 그대로 쓸 수 있어요"
+        ], mock:mockTeam })}
+
+      ${featureBlock({
+        id:"f-files", badge:"자료 정리", title:"카톡에서 파일 찾아 헤매지 않게",
+        lead:"팀 공용 자료함과 과목별 자료함이 따로 있어요. 필요한 것만 팀 전체로 올릴 수 있고요.",
+        points:[
+          "과목별 자료함 + <b>팀 공용 자료함</b> 분리",
+          "<b>전체 공유</b> 한 번이면 과목 자료가 팀 자료함에도 등장 (출처 표시와 함께)",
+          "<b>누가 언제 올렸는지</b>와 파일 크기가 함께 보여요",
+          "우리 팀만 열람 가능 — <b>비공개 저장</b>에 임시 링크로만 열림",
+          "한 파일당 20MB까지"
+        ], mock:mockFiles, flip:true })}
+
+      ${featureBlock({
+        id:"f-schedule", badge:"일정 관리", title:"이번 주 뭐 마감인지 한눈에",
+        lead:"과목마다 흩어진 마감이 하나의 달력으로 모여요. 색깔로 어느 과목 건지 바로 구분되고요.",
+        points:[
+          "팀·과목 일정이 <b>한 캘린더에 색깔별로</b> 모임",
+          "목록에서 <b>바로 완료 체크</b> — 끝낸 건 취소선으로 표시",
+          "<b>반복 일정</b>: 매주·격주·매월 (주차별 정리본 제출에 딱)",
+          "만들기 전에 <b>“총 7개 일정이 만들어져요”</b> 미리보기",
+          "반복은 <b>한 번에 전체 삭제</b>도 가능"
+        ], mock:mockSched })}
+
+      ${featureBlock({
+        id:"f-chat", badge:"의견 공유", title:"할 말은 하되, 아무 데나 새지 않게",
+        lead:"과목 안에서 나눈 이야기는 그 안에 머물러요. 전체에 알릴 것만 골라서 올리면 됩니다.",
+        points:[
+          "팀 대화방 + <b>과목별 대화방</b> 따로",
+          "과목 대화는 <b>기본 비공개</b> — <b>전체 공유</b>한 것만 팀 대화방으로",
+          "올라온 메시지엔 <b>어느 과목에서 왔는지</b> 출처가 붙어요",
+          "메시지를 <b>클릭하면 수정·삭제</b> 버튼이 나타나요",
+          "닉네임과 <b>프로필 사진</b>으로 누가 한 말인지 바로 구분"
+        ], mock:mockChat, flip:true })}
+
+      <section class="band" style="margin-top:36px">
+        <h2>지금은 베타 — 모든 기능 무료</h2>
+        <p>팀 만들고, 코드로 초대하고, 바로 시작하세요.</p>
+        <button class="band-btn" onclick="${isLoggedIn()?'goTeams()':'signupStart()'}">${isLoggedIn()?'나의 팀플 들어가기 →':'무료로 시작하기 →'}</button>
+      </section>
+
+      <footer class="landing-footer">
+        TeamFit · 대학생 팀플·스터디 올인원
+      </footer>
+    </div>`;
+  window.scrollTo(0,0);
+}
+
+function goHome(){ syncOff(); view={name:"home"}; render(); window.scrollTo(0,0); }
+async function goTeams(){
+  if(!isLoggedIn()) return loginStart();
+  syncOff(); view={name:"teams"}; render(); await loadTeams(); render();
+}
+function goMyPage(){
+  syncOff();
+  mpDraft = null;
+  view={name:"mypage"}; render();
+}
+function goProfile(){
+  mpDraft = {me:state.me, avatarEmoji:state.avatarEmoji, avatarColor:state.avatarColor, avatarImg:state.avatarImg};
+  view={name:"profile"}; render();
+}
+
+/* ===== 회원가입 · 로그인 ===== */
+function signupStart(){
+  if(isLoggedIn()) return goTeams();
+  showModal(`
+    <h3>회원가입</h3>
+    <div class="field">
+      <label>닉네임 (채팅에 표시돼요)</label>
+      <input id="suNick" placeholder="예: 홍길동" autofocus />
+    </div>
+    <div class="field">
+      <label>이메일</label>
+      <input id="suEmail" type="email" placeholder="you@example.com" />
+    </div>
+    <div class="field">
+      <label>비밀번호 (6자 이상)</label>
+      <input id="suPw" type="password" placeholder="비밀번호"
+        onkeydown="if(event.key==='Enter')doSignup()" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="loginStart()">로그인하기</button>
+      <button class="btn btn-primary" onclick="doSignup()">가입하고 시작 →</button>
+    </div>`);
+}
+function loginStart(){
+  showModal(`
+    <h3>로그인</h3>
+    <div class="field">
+      <label>이메일</label>
+      <input id="liEmail" type="email" placeholder="you@example.com" autofocus />
+    </div>
+    <div class="field">
+      <label>비밀번호</label>
+      <input id="liPw" type="password" placeholder="비밀번호"
+        onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="forgot-row"><a onclick="forgotStart()">비밀번호를 잊으셨나요?</a></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="signupStart()">회원가입</button>
+      <button class="btn btn-primary" onclick="doLogin()">로그인 →</button>
+    </div>`);
+}
+
+/* ===== 비밀번호 재설정 ===== */
+function forgotStart(){
+  showModal(`
+    <h3>비밀번호 재설정</h3>
+    <div class="modal-sub">가입할 때 쓴 이메일로 재설정 링크를 보내드려요.<br>
+      메일의 링크를 누르면 새 비밀번호를 정할 수 있어요.</div>
+    <div class="field">
+      <label>이메일</label>
+      <input id="fpEmail" type="email" placeholder="you@example.com" autofocus
+        onkeydown="if(event.key==='Enter')sendReset()" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="loginStart()">돌아가기</button>
+      <button class="btn btn-primary" onclick="sendReset()">재설정 메일 보내기</button>
+    </div>`);
+}
+async function sendReset(){
+  const email=val("fpEmail").trim();
+  if(!email) return dbError({message:"이메일을 입력해주세요"});
+  /* 하위경로 배포(예: /teamfit/)에서도 앱 URL 그대로 돌아오게 (쿼리·해시 제거) */
+  const backTo = location.href.split("#")[0].split("?")[0];
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: backTo });
+  if(error) return dbError(error);
+  killModal();
+  toast("재설정 메일을 보냈어요 📧 메일함을 확인해주세요");
+}
+/* 메일 링크로 돌아왔을 때 뜨는 창 */
+function newPasswordModal(){
+  showModal(`
+    <h3>새 비밀번호 설정</h3>
+    <div class="modal-sub">메일의 링크로 들어오셨어요. 새로 쓸 비밀번호를 정해주세요.</div>
+    <div class="field">
+      <label>새 비밀번호 (6자 이상)</label>
+      <input id="npPw" type="password" placeholder="새 비밀번호" autofocus
+        onkeydown="if(event.key==='Enter')saveNewPassword()" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveNewPassword()">변경하기</button>
+    </div>`);
+}
+async function saveNewPassword(){
+  const pw=val("npPw");
+  if(!pw || pw.length<6) return dbError({message:"6자 이상 입력해주세요"});
+  const { error } = await sb.auth.updateUser({ password: pw });
+  if(error) return dbError(error);
+  killModal();
+  await loadProfile(); await loadTeams();
+  toast("비밀번호를 바꿨어요 ✓");
+  goTeams();
+}
+async function doSignup(){
+  const nick=val("suNick").trim(), email=val("suEmail").trim(), pw=val("suPw");
+  if(!nick) return dbError({message:"닉네임을 입력해주세요"});
+  if(!email || !pw) return dbError({message:"이메일과 비밀번호를 입력해주세요"});
+  const { data, error } = await sb.auth.signUp({ email, password: pw });
+  if(error) return dbError(error);
+  if(!data.session){
+    killModal();
+    return dbError({message:"가입 완료! 이메일 인증이 켜져 있어요. 메일함을 확인해주세요."});
+  }
+  session = data.session;
+  state.me = nick;
+  await loadProfile();
+  state.me = nick; await saveProfile();
+  killModal();
+  await loadTeams(); goTeams();
+}
+async function doLogin(){
+  const email=val("liEmail").trim(), pw=val("liPw");
+  if(!email || !pw) return dbError({message:"이메일과 비밀번호를 입력해주세요"});
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if(error) return dbError(error);
+  session = data.session;
+  await loadProfile();
+  killModal();
+  await loadTeams(); goHome();
+}
+async function doLogout(){
+  await sb.auth.signOut();
+  session = null; state.teams = [];
+  goHome();
+}
+
+/* ===== 초대코드로 팀 참여 ===== */
+function joinStart(){
+  showModal(`
+    <h3>초대코드로 참여</h3>
+    <div class="field">
+      <label>초대코드</label>
+      <input id="joinCode" placeholder="예: 8HV9J1" autofocus
+        onkeydown="if(event.key==='Enter')doJoin()" />
+    </div>
+    <div class="home-note" style="text-align:left;margin:-4px 0 10px">팀 페이지 오른쪽 위에 있는 코드를 팀원에게 받아 입력하세요.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="doJoin()">참여하기 →</button>
+    </div>`);
+}
+async function doJoin(){
+  const code=val("joinCode").trim().toUpperCase(); if(!code) return;
+  /* 아직 멤버가 아니면 팀을 조회할 권한이 없으므로 서버 함수로 확인+가입을 한 번에 */
+  const { data, error } = await sb.rpc("join_team_by_code",
+    { p_code:code, p_member_name:currentUser() });
+  if(error) return dbError(error);
+  if(!data) return dbError({message:"초대코드를 찾을 수 없어요. 코드를 다시 확인해주세요."});
+  killModal();
+  await loadTeams();
+  await openTeam(data);
+}
+
+/* ===== 마이페이지 (내 정보 · 채팅 프로필) ===== */
+/* 마이페이지 = 개요(내 정보 요약). 편집은 '프로필 설정'에서 */
+function renderMyPage(){
+  const nick = (state.me==="나"?"":state.me) || "";
+  app.innerHTML = `
+    <button class="back" onclick="goHome()">← 홈</button>
+    <div class="teams-head"><h1 class="teams-title">마이페이지</h1><p class="teams-sub">내 정보</p></div>
+    <div class="panel" style="max-width:760px">
+      <div class="mp-summary">
+        ${avatarMarkup(state,'lg')}
+        <div class="mp-summary-info">
+          <div class="mp-nick">${esc(nick||"닉네임 없음")}</div>
+          <div class="mypage-row" style="margin-top:6px">계정 <b>${esc(myEmail()||"로그인 안 됨")}</b></div>
+          <div class="mypage-row">소속 팀 <b>${state.teams.length}개</b></div>
+        </div>
+      </div>
+
+      <button class="btn btn-ghost" style="width:100%;padding:13px;font-size:15px;margin-top:18px"
+        onclick="goProfile()">⚙︎ 프로필 설정</button>
+
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn btn-primary" style="flex:1;padding:12px" onclick="goTeams()">내 팀플 보기 →</button>
+        ${isLoggedIn()
+          ? `<button class="btn btn-ghost" style="padding:12px 20px;color:#e0574f;border-color:#e0574f" onclick="doLogout()">로그아웃</button>`
+          : `<button class="btn btn-ghost" style="padding:12px 20px" onclick="loginStart()">로그인</button>`}
+      </div>
+      <div class="home-note" style="text-align:left;margin-top:14px">닉네임·프로필은 계정에 저장돼서 어느 기기에서 로그인해도 따라와요.</div>
+    </div>`;
+}
+
+/* 프로필 설정 = 닉네임·아바타 편집 */
+function renderProfile(){
+  const emojis=["🙂","😎","🐱","🐶","🦊","🐼","🍀","⭐","🔥","🎧","📚","☕"];
+  const colors=["#5b6cff","#1aa06d","#e0574f","#e8942e","#9b59d6","#0aa2c0","#d6478c","#3f4756"];
+  const dv = mpDraft || state;
+  const emojiRow=emojis.map(e=>`<button class="emoji-pick ${(!dv.avatarImg&&dv.avatarEmoji===e)?'on':''}" onclick="setAvatarEmoji('${e}')">${e}</button>`).join("");
+  const colorRow=colors.map(c=>`<button class="color-pick ${dv.avatarColor===c?'on':''}" style="background:${c}" onclick="setAvatarColor('${c}')"></button>`).join("");
+  const d = mpDraft || state;
+  const dirty = mpDirty();
+  const nick = (d.me==="나"?"":d.me) || "";
+  app.innerHTML = `
+    <button class="back" onclick="goMyPage()">← 마이페이지</button>
+    <div class="teams-head"><h1 class="teams-title">프로필 설정</h1><p class="teams-sub">채팅에 표시될 닉네임과 아바타</p></div>
+    <div class="panel" style="max-width:760px">
+      <div class="mp-grid">
+        <div class="mp-left">
+          ${avatarMarkup(d,'lg')}
+          <div class="mp-nick" style="margin-bottom:10px">${esc(nick||"닉네임 없음")}</div>
+          <label class="mp-upload" style="margin:0 auto">사진 업로드<input type="file" accept="image/*" onchange="onAvatarFile(this)" hidden></label>
+          ${d.avatarImg?`<button class="mp-remove" style="margin:8px auto 0" onclick="clearAvatarImg()">사진 제거</button>`:""}
+          <div class="field" style="margin-top:18px;margin-bottom:0">
+            <label>채팅 미리보기</label>
+            <div class="mp-preview">
+              ${avatarMarkup(d,'sm')}
+              <div class="msg">안녕! 저는 ${esc(nick||"…")}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mp-right">
+          <div class="field">
+            <label>닉네임 (채팅에 표시돼요)</label>
+            <input id="myNick" placeholder="닉네임 입력" value="${esc(nick)}"
+              oninput="if(mpDraft) mpDraft.me=this.value" />
+          </div>
+          <div class="field">
+            <label>프로필 이모지 ${d.avatarImg?'<span style="font-weight:400">(사진 사용 중 — 이모지를 고르면 사진 해제)</span>':''}</label>
+            <div class="pick-row">${emojiRow}</div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>프로필 배경색</label>
+            <div class="pick-row">${colorRow}</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;padding:13px;font-size:16px"
+        onclick="mpSave()">${dirty?"변경사항 저장":"저장"}</button>
+      ${dirty?`<div class="home-note" style="margin-top:8px">아직 저장하지 않은 변경사항이 있어요.</div>`:""}
+    </div>`;
+}
+
+/* ===== 내 팀 목록 ===== */
+function renderTeams(){
+  const cards = state.teams.map(t=>{
+    const mem=(t.memberCount!=null)?t.memberCount:(t.members||[]).length;
+    const sub=(t.subjectCount!=null)?t.subjectCount:(t.subjects||[]).length;
+    return `<div class="card team-card" onclick="openTeam('${t.id}')">
+      <div class="accent-line" style="background:var(--accent)"></div>
+      <h3>${esc(t.name)}</h3>
+      <div class="team-card-meta">멤버 ${mem}명 · 과목/프로젝트 ${sub}개</div>
+    </div>`;
+  }).join("");
+  const addCard = `<div class="card add-card" onclick="createTeam()">+ 새 팀 만들기</div>`;
+  app.innerHTML = `
+    <div class="teams-head">
+      <button class="back" onclick="goHome()">← 홈</button>
+      <h1 class="teams-title">나의 팀플</h1>
+      <p class="teams-sub">${esc(state.me)}님이 속한 팀
+        <button class="btn btn-ghost btn-sm" style="margin-left:8px" onclick="joinStart()">＋ 초대코드로 참여</button>
+      </p>
+    </div>
+    ${state.teams.length===0
+      ? `<div class="empty">아직 팀이 없어요.<br>아래 <b>+ 새 팀 만들기</b>로 시작하세요.</div>`
+      : ""}
+    <div class="grid">${cards}${addCard}</div>`;
+}
+async function openTeam(id){ view={name:"team", teamId:id}; activeTab="projects"; render(); await loadTeam(id); render(); syncTeam(id); }
+function createTeam(){
+  showModal(`
+    <h3>새 팀 만들기</h3>
+    <div class="field">
+      <label>팀 이름</label>
+      <input id="newTeamName" placeholder="예: 2026 2학년 스터디" autofocus
+        onkeydown="if(event.key==='Enter')doCreateTeam()" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="doCreateTeam()">만들기</button>
+    </div>`);
+}
+async function doCreateTeam(){
+  const name=val("newTeamName").trim(); if(!name) return;
+  /* 팀 생성 + 나를 멤버로 등록을 한 번에 (보안 정책 때문에 서버 함수로 처리) */
+  const { data, error } = await sb.rpc("create_team",
+    { p_name:name, p_code:genCode(), p_member_name:currentUser() });
+  if(error) return dbError(error);
+  killModal();
+  await loadTeams();
+  await openTeam(data);
+}
+/* ===== 자료(파일) ===== */
+const MAX_FILE_MB = 20;
+function fileSize(n){
+  if(!n && n!==0) return "";
+  if(n < 1024) return n+" B";
+  if(n < 1024*1024) return Math.round(n/1024)+" KB";
+  return (n/1024/1024).toFixed(1)+" MB";
+}
+async function uploadFile(input, subjectId){
+  const f = input.files && input.files[0]; if(!f) return;
+  if(f.size > MAX_FILE_MB*1024*1024){
+    input.value="";
+    return dbError({message:`${MAX_FILE_MB}MB 이하 파일만 올릴 수 있어요 (지금 ${fileSize(f.size)})`});
+  }
+  const safe = f.name.replace(/[^\w.\-가-힣ㄱ-ㅎㅏ-ㅣ ]/g,"_");
+  const path = `${view.teamId}/${subjectId||"team"}/${Date.now()}_${safe}`;
+  toast("올리는 중…");
+  const up = await sb.storage.from("files").upload(path, f, {upsert:false});
+  if(up.error){ input.value=""; return dbError(up.error); }
+  const ins = await sb.from("files").insert({
+    team_id:view.teamId, subject_id:subjectId||null,
+    name:f.name, path, size:f.size, uploaded_by:currentUser()
+  });
+  if(ins.error){ input.value=""; return dbError(ins.error); }
+  input.value="";
+  await refresh();
+  toast("자료를 올렸어요 📎");
+}
+async function openFile(path, name){
+  const { data, error } = await sb.storage.from("files").createSignedUrl(path, 60);
+  if(error) return dbError(error);
+  const a=document.createElement("a");
+  a.href=data.signedUrl; a.download=name; a.target="_blank"; a.rel="noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function delFile(id, path){
+  const rm = await sb.storage.from("files").remove([path]);
+  if(rm.error) return dbError(rm.error);
+  const { error } = await sb.from("files").delete().eq("id",id);
+  if(error) return dbError(error);
+  await refresh(); toast("자료를 삭제했어요");
+}
+async function toggleFileShare(id, shared){
+  const { error } = await sb.from("files").update({shared:!shared}).eq("id",id);
+  if(error) return dbError(error);
+  await refresh();
+}
+/* 파일 목록 그리기. opts.share=true면 '전체 공유' 토글 표시 */
+function renderFileRows(list, opts){
+  opts=opts||{};
+  if(!list.length) return `<div class="soon">아직 올라온 자료가 없어요.</div>`;
+  return list.map(f=>`
+    <div class="row">
+      <span class="file-name" onclick="openFile('${f.path}','${esc(f.name)}')" title="클릭하면 열려요">📄 ${esc(f.name)}</span>
+      ${f.source?`<span class="sch-tag" style="background:${f.color}">${esc(f.source)}</span>`:""}
+      <span class="file-meta">${fileSize(f.size)} · ${esc(f.who||"")}</span>
+      ${opts.share?`<button class="msg-share ${f.shared?"on":""}" onclick="toggleFileShare('${f.id}',${!!f.shared})">${f.shared?"✓ 전체 공유됨":"전체 공유"}</button>`:""}
+      <button class="del" onclick="delFile('${f.id}','${f.path}')">✕</button>
+    </div>`).join("");
+}
+/* 팀 자료함 = 팀에 직접 올린 것 + 과목에서 '전체 공유'한 것 */
+function teamFileFeed(){
+  const out=(T().files||[]).map(f=>Object.assign({},f));
+  (T().subjects||[]).forEach(s=>(s.files||[]).filter(f=>f.shared)
+    .forEach(f=>out.push(Object.assign({},f,{source:s.name, color:s.color||"#5b6cff"}))));
+  return out;
+}
+function renderTeamFiles(){
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>📎 자료 <span style="font-size:12px;font-weight:500;color:var(--muted)">팀 공용 + 공유된 것</span></h3></div>
+      ${renderFileRows(teamFileFeed(), {})}
+      <label class="repeat-btn" style="margin-top:12px">📎 팀 공용 자료 올리기
+        <input type="file" hidden onchange="uploadFile(this, null)">
+      </label>
+      <div class="home-note" style="text-align:left">${MAX_FILE_MB}MB 이하 · 우리 팀만 열어볼 수 있어요</div>
+    </div>`;
+}
+
+/* ===== 초대코드 복사 ===== */
+async function copyText(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text); return true;
+    }
+  }catch(e){}
+  /* file://처럼 보안 컨텍스트가 아닐 때를 위한 대체 방법 */
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=text; ta.setAttribute("readonly","");
+    ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0";
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    const ok=document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+async function copyCode(){
+  const code=T().code||""; if(!code) return;
+  const ok=await copyText(code);
+  if(ok) toast(`초대코드 ${code} 복사했어요 📋`);
+  else dbError({message:"복사에 실패했어요. 코드를 직접 선택해 복사해주세요."});
+}
+
+/* ===== 팀 설정: 나가기 · 삭제 ===== */
+function teamSettings(){
+  const t=T();
+  const owner = t.created_by && t.created_by===uid();
+  const schCount=(t.teamSchedule||[]).length + (t.subjects||[]).reduce((a,s)=>a+(s.schedule||[]).length,0);
+  showModal(`
+    <h3>⚙︎ 팀 설정</h3>
+    <div class="modal-sub"><b>${esc(t.name)}</b><br>
+      멤버 ${t.members.length}명 · 과목 ${(t.subjects||[]).length}개 · 일정 ${schCount}개</div>
+
+    <div class="field">
+      <label>팀 나가기</label>
+      <div class="home-note" style="text-align:left;margin:0 0 8px">나만 빠지고 팀과 자료는 그대로 남아요.</div>
+      <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="confirmLeave()">이 팀에서 나가기</button>
+    </div>
+
+    <div class="field" style="margin-bottom:0">
+      <label>팀 삭제</label>
+      <div class="home-note" style="text-align:left;margin:0 0 8px">
+        ${owner
+          ? "팀과 모든 자료가 영구히 사라져요. 되돌릴 수 없어요."
+          : "팀을 <b>만든 사람만</b> 삭제할 수 있어요."}
+      </div>
+      <button class="btn ${owner?'btn-danger':'btn-ghost'}" style="width:100%;padding:11px"
+        ${owner?'onclick="confirmDeleteTeam()"':'disabled style="width:100%;padding:11px;opacity:.5;cursor:not-allowed"'}>
+        팀 영구 삭제</button>
+    </div>
+
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">닫기</button></div>`);
+}
+function confirmLeave(){
+  showModal(`
+    <h3>팀에서 나가기</h3>
+    <div class="modal-sub"><b>${esc(T().name)}</b>에서 나갑니다.<br>
+      나중에 초대코드로 다시 들어올 수 있어요.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="leaveTeam()">나가기</button>
+    </div>`);
+}
+async function leaveTeam(){
+  const row=(T()._memberRows||[]).find(m=>m.user_id===uid());
+  if(!row) return dbError({message:"내 멤버 정보를 찾을 수 없어요"});
+  const { error } = await sb.from("members").delete().eq("id",row.id);
+  if(error) return dbError(error);
+  syncOff(); killModal(); await loadTeams(); view={name:"teams"}; render();
+  toast("팀에서 나왔어요");
+}
+function confirmDeleteTeam(){
+  showModal(`
+    <h3 style="color:#c0392b">팀 영구 삭제</h3>
+    <div class="modal-sub">이 팀의 <b>모든 과목·일정·의견·멤버</b>가 영구히 삭제돼요.<br>
+      <b>되돌릴 수 없어요.</b></div>
+    <div class="field">
+      <label>확인을 위해 팀 이름을 그대로 입력해주세요</label>
+      <input id="delConfirm" placeholder="${esc(T().name)}" autofocus
+        onkeydown="if(event.key==='Enter')deleteTeam()" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-danger" onclick="deleteTeam()">영구 삭제</button>
+    </div>`);
+}
+async function deleteTeam(){
+  if(val("delConfirm").trim()!==T().name)
+    return dbError({message:"팀 이름이 일치하지 않아요"});
+  const { error } = await sb.from("teams").delete().eq("id",view.teamId);
+  if(error) return dbError(error);
+  syncOff(); killModal(); await loadTeams(); view={name:"teams"}; render();
+  toast("팀을 삭제했어요");
+}
+
+async function renameTeam(value){
+  const v=(value||"").trim(); if(!v) return;
+  const { error } = await sb.from("teams").update({name:v}).eq("id",view.teamId);
+  if(error) return dbError(error);
+  T().name=v; render();
+}
+
+function renderDashboard(){
+  const memChips = T().members.map(m=>`<span class="chip">${esc(m)}</span>`).join("")
+    + `<button class="btn btn-ghost btn-sm" onclick="manageMembers()">멤버</button>`
+    + `<button class="btn btn-ghost btn-sm" onclick="teamSettings()">⚙︎ 팀 설정</button>`;
+
+  const cards = T().subjects.map(s=>{
+    const color = s.color||"#5b6cff";
+    const mem = (s.members||[]).length? (s.members||[]).join(", ") : "담당 미정";
+    const mods = MODULES.map(m=>`<span class="mod">${m}</span>`).join("");
+    return `<div class="card" onclick="openSubject('${s.id}')">
+      <div class="accent-line" style="background:${color}"></div>
+      <h3>${esc(s.name)}${unreadBadge(s.id)}</h3>
+      <div class="mem">${esc(mem)}</div>
+      <div class="mods">${mods}</div>
+    </div>`;
+  }).join("");
+
+  const addCard = `<div class="card add-card" onclick="addSubject()">+ 과목 추가</div>`;
+
+  /* 다가오는 마감 배너 (7일 이내 + 지난 것, 미완료) */
+  const dl = upcomingDeadlines(7);
+  const dlBanner = dl.length ? `
+    <div class="dl-banner">
+      <div class="dl-head">⏰ 다가오는 마감 <span class="dl-count">${dl.length}</span></div>
+      ${dl.slice(0,5).map(t=>`
+        <div class="dl-item" onclick="setTab('schedule')" title="일정 탭으로">
+          ${ddayBadge(t.date,false)}
+          <span class="dl-title">${esc(t.title)}</span>
+          <span class="sch-tag" style="background:${t.color}">${esc(t.tag)}</span>
+        </div>`).join("")}
+      ${dl.length>5?`<div class="dl-more" onclick="setTab('schedule')">+${dl.length-5}개 더 보기</div>`:""}
+    </div>` : "";
+
+  const cnt = T().subjects.length ? ` (${T().subjects.length})` : "";
+  const tabs = `
+    <div class="tabs">
+      <button class="tab ${activeTab==='schedule'?'on':''}" onclick="setTab('schedule')">📅 일정</button>
+      <button class="tab ${activeTab==='projects'?'on':''}" onclick="setTab('projects')">📁 과목·프로젝트${cnt}${(subjectsUnread()>0)?`<span class="badge-dot"></span>`:""}</button>
+      <button class="tab ${activeTab==='files'?'on':''}" onclick="setTab('files')">📎 자료</button>
+      <button class="tab ${activeTab==='chat'?'on':''}" onclick="setTab('chat')">💬 의견${unreadBadge('team')}</button>
+    </div>`;
+
+  let content = "";
+  if(activeTab==='schedule'){
+    content = `${renderCalendar()}${renderTeamSchedule()}`;
+  } else if(activeTab==='files'){
+    content = renderTeamFiles();
+  } else if(activeTab==='chat'){
+    content = renderTeamChat();
+  } else {
+    content = `${T().subjects.length===0
+      ? `<div class="empty">아직 과목이 없어요.<br>아래 <b>+ 과목 추가</b>로 첫 과목을 만들어보세요.</div>`
+      : ""}<div class="grid">${cards}${addCard}</div>`;
+  }
+
+  app.innerHTML = `
+    <button class="back" onclick="goTeams()">← 팀 목록</button>
+    <div class="team-head">
+      <div class="team-top">
+        <input class="team-name" value="${esc(T().name)}"
+          onchange="renameTeam(this.value)" />
+        <button class="invite-code" onclick="copyCode()" title="클릭하면 복사돼요">📋 초대코드 ${esc(T().code||'----')}</button>
+      </div>
+      <div class="members">${memChips}</div>
+    </div>
+    ${dlBanner}
+    ${tabs}
+    ${content}
+  `;
+}
+
+function renderSubject(){
+  const s = T().subjects.find(x=>x.id===view.subjectId);
+  if(!s){ view={name:"team", teamId:view.teamId}; return render(); }
+  const color = s.color||"#5b6cff";
+
+  /* 역할 분담 */
+  const roles = (s.roles||[]).map(r=>{
+    if(editingRole===r.id){
+      return `<div class="row" style="flex-wrap:wrap;gap:8px">
+        <select id="roleWho_${r.id}">${(s.members||[]).map(m=>`<option ${m===r.who?"selected":""}>${esc(m)}</option>`).join("")||`<option>${esc(r.who||"")}</option>`}</select>
+        <input class="grow" id="roleW_${r.id}" value="${esc(r.what)}"
+          onkeydown="if(event.key==='Enter')saveRole('${r.id}')" />
+        <button class="btn btn-primary btn-sm" onclick="saveRole('${r.id}')">저장</button>
+        <button class="btn btn-ghost btn-sm" onclick="cancelRole()">취소</button>
+      </div>`;
+    }
+    return `<div class="row">
+      <span class="who">${esc(r.who)}</span>
+      <span class="what edit-target" onclick="editRole('${r.id}')" title="클릭해서 수정">${esc(r.what)}</span>
+      <button class="del" onclick="delRole('${r.id}')">✕</button>
+    </div>`;
+  }).join("") || `<div class="soon">아직 분담이 없어요.</div>`;
+
+  const memOptions = s.members.map(m=>`<option>${esc(m)}</option>`).join("");
+
+  /* 일정 · 마감 */
+  const schedule = (s.schedule||[]).map(t=>{
+    if(editingSched===t.id) return schedEditRow(t);
+    return `<div class="row ${t.done?'done':''}">
+      <div class="check ${t.done?'on':''}" onclick="toggleDone('${t.id}',${!!t.done})">${t.done?'✓':''}</div>
+      <span class="task-title edit-target" onclick="editSched('${t.id}')" title="클릭해서 수정">${esc(t.title)}${t.series_id?'<span class="rep" title="반복 일정">🔁</span>':''}</span>
+      ${ddayBadge(t.date,t.done)}
+      <span class="date">${esc(t.date||'')}</span>
+      <button class="del" onclick="askDelete('${t.id}',${t.series_id?`'${t.series_id}'`:"null"})">✕</button>
+    </div>`;
+  }).join("") || `<div class="soon">아직 일정이 없어요.</div>`;
+
+  app.innerHTML = `
+    <div class="detail-head">
+      <button class="back" onclick="goDashboard()">← 팀으로</button>
+    </div>
+    <div class="detail-head">
+      <div class="accent-line" style="background:${color};height:6px;width:44px;border-radius:4px"></div>
+      <input class="detail-title-input" value="${esc(s.name)}" title="클릭해서 이름 수정"
+        onchange="renameSubject('${s.id}', this.value)" />
+      <button class="btn btn-ghost btn-sm" style="white-space:nowrap" onclick="subjectSettings()">⚙︎ 과목 설정</button>
+    </div>
+    <div class="members" style="margin-bottom:20px">
+      ${s.members.map(m=>`<span class="chip">${esc(m)}</span>`).join("") || '<span class="chip gray">담당 미정</span>'}
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>👥 역할 분담</h3></div>
+      ${roles}
+      <div class="add-row">
+        <select id="roleWho">${memOptions||'<option>담당자</option>'}</select>
+        <input class="grow" id="roleWhat" placeholder="맡은 일 (예: 3주차 정리본)" />
+        <button class="btn btn-primary btn-sm" onclick="addRole()">추가</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>🗓️ 일정 · 마감</h3></div>
+      ${schedule}
+      <div class="add-row">
+        <input class="grow" id="taskTitle" placeholder="할 일 / 마감 (예: 1~2주차 제출)" />
+        <input id="taskDate" type="date" value="${todayStr()}" />
+        <button class="btn btn-primary btn-sm" onclick="addTask()">추가</button>
+      </div>
+      <button class="repeat-btn" onclick="repeatStart('${s.id}')">🔁 매주·격주로 반복되는 일정 만들기</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>📎 자료 · 정리본</h3></div>
+      ${renderFileRows(s.files||[], {share:true})}
+      <label class="repeat-btn" style="margin-top:12px">📎 자료 올리기
+        <input type="file" hidden onchange="uploadFile(this, '${s.id}')">
+      </label>
+      <div class="home-note" style="text-align:left">${MAX_FILE_MB}MB 이하 · <b>전체 공유</b>를 누르면 팀 자료함에도 올라가요</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>💬 의견</h3></div>
+      ${renderBubbles((s.comments||[]), {share:true, subjectId:s.id, scope:s.id})}
+      <div class="chat-input">
+        <input id="subText" placeholder="메시지 입력" onkeydown="if(event.key==='Enter')addSubComment()" />
+        <button class="btn btn-primary btn-sm" onclick="addSubComment()">전송</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ===== 동작 ===== */
+function goDashboard(){ view={name:"team", teamId:view.teamId}; render(); }
+function openSubject(id){ view={name:"subject", teamId:view.teamId, subjectId:id}; render(); syncTeam(view.teamId); markRead(id); }
+
+async function addRole(){
+  const s=cur(); const who=val("roleWho"); const what=val("roleWhat").trim();
+  if(!what) return;
+  const { error } = await sb.from("roles").insert({subject_id:s.id, who, what});
+  if(error) return dbError(error);
+  await refresh();
+}
+async function delRole(id){
+  const { error } = await sb.from("roles").delete().eq("id",id);
+  if(error) return dbError(error);
+  await refresh();
+}
+async function addTask(){
+  const s=cur(); const title=val("taskTitle").trim(); const date=val("taskDate")||todayStr();
+  if(!title) return;
+  const { error } = await sb.from("schedules").insert({team_id:view.teamId, subject_id:s.id, title, date});
+  if(error) return dbError(error);
+  await refresh();
+}
+/* 일정 완료/삭제 — 팀 공용·과목 공용 */
+async function toggleDone(id, done){
+  const { error } = await sb.from("schedules").update({done:!done}).eq("id",id);
+  if(error) return dbError(error);
+  await refresh();
+}
+async function delSchedule(id){
+  const { error } = await sb.from("schedules").delete().eq("id",id);
+  if(error) return dbError(error);
+  await refresh();
+}
+
+/* 일정 수정 (제목·날짜) */
+let editingSched = null;
+function editSched(id){
+  editingSched=id; render();
+  const el=document.getElementById("schT_"+id);
+  if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
+function cancelSched(){ editingSched=null; render(); }
+async function saveSched(id){
+  const t=document.getElementById("schT_"+id), d=document.getElementById("schD_"+id);
+  const title=t? t.value.trim():"", date=(d && d.value) ? d.value : null;
+  if(!title) return dbError({message:"내용을 입력해주세요"});
+  editingSched=null;
+  const { error } = await sb.from("schedules").update({title, date}).eq("id",id);
+  if(error) return dbError(error);
+  await refresh(); toast("일정을 수정했어요");
+}
+/* 한 줄짜리 일정 편집 폼 */
+function schedEditRow(t){
+  return `<div class="row" style="flex-wrap:wrap;gap:8px">
+    <input class="grow" id="schT_${t.id}" value="${esc(t.title)}"
+      onkeydown="if(event.key==='Enter')saveSched('${t.id}')" />
+    <input id="schD_${t.id}" type="date" value="${esc(t.date||'')}" />
+    <button class="btn btn-primary btn-sm" onclick="saveSched('${t.id}')">저장</button>
+    <button class="btn btn-ghost btn-sm" onclick="cancelSched()">취소</button>
+  </div>`;
+}
+
+/* 역할 분담 수정 */
+let editingRole = null;
+function editRole(id){
+  editingRole=id; render();
+  const el=document.getElementById("roleW_"+id);
+  if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
+function cancelRole(){ editingRole=null; render(); }
+async function saveRole(id){
+  const w=document.getElementById("roleW_"+id), who=document.getElementById("roleWho_"+id);
+  const what=w? w.value.trim():"";
+  if(!what) return dbError({message:"맡은 일을 입력해주세요"});
+  editingRole=null;
+  const { error } = await sb.from("roles").update({what, who: who?who.value:undefined}).eq("id",id);
+  if(error) return dbError(error);
+  await refresh(); toast("역할을 수정했어요");
+}
+
+/* ===== 반복 일정 ===== */
+function fmtDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function genDates(start, freq, until){
+  const out=[];
+  const s=new Date(start+"T00:00"), end=new Date(until+"T00:00");
+  if(isNaN(s)||isNaN(end)) return out;
+
+  if(freq==="monthly"){
+    /* 매월 같은 날. 그 달에 그 날이 없으면(31일→2월) 그 달 마지막 날로 */
+    const day=s.getDate();
+    let y=s.getFullYear(), m=s.getMonth(), guard=0;
+    while(guard<400){
+      const lastDay=new Date(y, m+1, 0).getDate();
+      const d=new Date(y, m, Math.min(day, lastDay));
+      if(d>end) break;
+      if(d>=s) out.push(fmtDate(d));
+      m++; if(m>11){ m=0; y++; }
+      guard++;
+    }
+    return out;
+  }
+
+  const d=new Date(s.getTime());
+  let guard=0;
+  while(d<=end && guard<400){
+    out.push(fmtDate(d));
+    d.setDate(d.getDate() + (freq==="biweekly"?14:7));
+    guard++;
+  }
+  return out;
+}
+function repeatStart(subjectId){
+  const t=new Date();
+  const start=`${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`;
+  const selStyle="width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:15px;font-family:inherit;outline:none;background:var(--card)";
+  const where = subjectId ? "이 과목" : "팀 전체";
+  showModal(`
+    <h3>🔁 반복 일정 만들기</h3>
+    <div class="modal-sub">같은 일정을 여러 날짜에 <b>한 번에</b> 만들어요.<br>
+      예) 매주 월요일 정리본 제출 · 격주 발표 준비<br>
+      만들어질 곳: <b>${esc(where)}</b></div>
+    <div class="field">
+      <label>무슨 일정인가요?</label>
+      <input id="rpTitle" placeholder="예: 주차별 정리본 제출" autofocus />
+    </div>
+    <div class="field">
+      <label>언제부터? (이 날의 요일로 반복돼요)</label>
+      <input id="rpStart" type="date" value="${start}" onchange="rpPreview()" />
+    </div>
+    <div class="field">
+      <label>얼마나 자주?</label>
+      <select id="rpFreq" style="${selStyle}" onchange="rpPreview()">
+        <option value="weekly">매주</option>
+        <option value="biweekly">격주 (2주마다)</option>
+        <option value="monthly">매월</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>언제까지? (예: 학기 마지막 주)</label>
+      <input id="rpUntil" type="date" onchange="rpPreview()" />
+    </div>
+    <div class="rp-preview muted" id="rpPreview">종료 날짜를 정하면 몇 개가 만들어지는지 여기서 미리 보여줄게요.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="doRepeat(${subjectId?`'${subjectId}'`:"null"})">만들기</button>
+    </div>`);
+  rpPreview();
+}
+/* 만들어질 날짜를 실시간으로 미리보기 */
+function rpPreview(){
+  const el=document.getElementById("rpPreview"); if(!el) return;
+  const start=val("rpStart"), freq=val("rpFreq"), until=val("rpUntil");
+  if(!start || !until){
+    el.className="rp-preview muted";
+    el.textContent="종료 날짜를 정하면 몇 개가 만들어지는지 여기서 미리 보여줄게요.";
+    return;
+  }
+  const ds=genDates(start,freq,until);
+  if(!ds.length){
+    el.className="rp-preview warn";
+    el.textContent="종료 날짜가 시작 날짜보다 빨라요.";
+    return;
+  }
+  if(ds.length>100){
+    el.className="rp-preview warn";
+    el.textContent=`${ds.length}개는 너무 많아요. 종료 날짜를 줄여주세요.`;
+    return;
+  }
+  const wd=["일","월","화","수","목","금","토"];
+  const label=d=>`${d.slice(5).replace("-","/")}(${wd[new Date(d+"T00:00").getDay()]})`;
+  const head=ds.slice(0,3).map(label).join(", ");
+  const tail=ds.length>3 ? ` … ${label(ds[ds.length-1])}` : "";
+  el.className="rp-preview ok";
+  el.innerHTML=`<b>총 ${ds.length}개</b> 일정이 만들어져요<br><span class="rp-dates">${head}${tail}</span>`;
+}
+async function doRepeat(subjectId){
+  const title=val("rpTitle").trim(), start=val("rpStart"), freq=val("rpFreq"), until=val("rpUntil");
+  if(!title) return dbError({message:"내용을 입력해주세요"});
+  if(!start || !until) return dbError({message:"시작·종료 날짜를 정해주세요"});
+  const dates=genDates(start,freq,until);
+  if(!dates.length) return dbError({message:"종료 날짜가 시작 날짜보다 빨라요"});
+  if(dates.length>100) return dbError({message:`${dates.length}개는 너무 많아요. 종료 날짜를 줄여주세요`});
+  const sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : null;
+  const rows = dates.map(d=>({team_id:view.teamId, subject_id:subjectId||null, title, date:d, series_id:sid}));
+  const { error } = await sb.from("schedules").insert(rows);
+  if(error) return dbError(error);
+  killModal(); await refresh();
+  toast(`${dates.length}개 일정을 만들었어요 🔁`);
+}
+/* 반복 일정 삭제: 하나만 vs 전체 */
+function askDelete(id, seriesId){
+  if(!seriesId) return delSchedule(id);
+  showModal(`
+    <h3>반복 일정 삭제</h3>
+    <div class="home-note" style="text-align:left;margin:-6px 0 16px">이 일정은 🔁 반복으로 만든 묶음의 일부예요.</div>
+    <div class="modal-actions" style="flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-ghost" onclick="killModal();delSchedule('${id}')">이 일정만</button>
+      <button class="btn btn-primary" onclick="killModal();delSeries('${seriesId}')">반복 전체</button>
+    </div>`);
+}
+async function delSeries(sid){
+  const { error } = await sb.from("schedules").delete().eq("series_id",sid);
+  if(error) return dbError(error);
+  await refresh(); toast("반복 일정을 모두 삭제했어요");
+}
+function cur(){ return T().subjects.find(x=>x.id===view.subjectId); }
+
+/* 팀 공용 일정 동작 */
+async function addTeamTask(){
+  const title=val("teamTaskTitle").trim(); const date=val("teamTaskDate")||todayStr();
+  if(!title) return;
+  const { error } = await sb.from("schedules").insert({team_id:view.teamId, subject_id:null, title, date});
+  if(error) return dbError(error);
+  await refresh();
+}
+
+/* ===== 모달: 과목 추가 ===== */
+function addSubject(){
+  let picked = new Set();
+  const picks = T().members.map(m=>
+    `<span class="pick" onclick="this.classList.toggle('on')" data-m="${esc(m)}">${esc(m)}</span>`
+  ).join("");
+  showModal(`
+    <h3>새 과목 만들기</h3>
+    <div class="field">
+      <label>과목 / 프로젝트 이름</label>
+      <input id="subjName" placeholder="예: 약품분석학1" autofocus />
+    </div>
+    <div class="field">
+      <label>참여 멤버 (선택 · 나중에 바꿀 수 있어요)</label>
+      <div class="picks" id="subjPicks">${picks || '<span class="soon">먼저 멤버를 추가하세요</span>'}</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="createSubject()">만들기</button>
+    </div>
+  `);
+}
+async function createSubject(){
+  const name = val("subjName").trim();
+  if(!name){ return; }
+  const members = [...document.querySelectorAll("#subjPicks .pick.on")].map(e=>e.dataset.m);
+  const color = COLORS[T().subjects.length % COLORS.length];
+  const { error } = await sb.from("subjects").insert({team_id:view.teamId, name, color, members});
+  if(error) return dbError(error);
+  killModal(); await refresh();
+}
+
+/* ===== 모달: 멤버 관리 ===== */
+function manageMembers(){
+  drawMemberModal();
+}
+function drawMemberModal(){
+  const list = T().members.map(m=>`<span class="chip">${esc(m)}</span>`).join(" ");
+  showModal(`
+    <h3>팀 멤버</h3>
+    <div class="field">
+      <div class="members" style="margin-top:0">${list||'<span class="soon">아직 멤버가 없어요</span>'}</div>
+    </div>
+    <div class="field" style="margin-bottom:6px">
+      <label>멤버 추가</label>
+      <div class="home-note" style="text-align:left;margin:0 0 8px">아래 초대코드를 공유하면, 받은 사람이 코드로 직접 참여해요.<br>나갈 때는 각자 <b>⚙︎ 팀 설정 → 나가기</b>로 나가요.</div>
+      <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="copyCode()">📋 초대코드 ${esc(T().code||'----')} · 복사</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeModal()">완료</button>
+    </div>
+  `);
+}
+
+/* ===== 모달 공통 ===== */
+function showModal(html){
+  let o=document.getElementById("overlay");
+  if(!o){ o=document.createElement("div"); o.id="overlay"; o.className="overlay";
+    o.addEventListener("mousedown",e=>{if(e.target===o)closeModal();}); document.body.appendChild(o); }
+  o.innerHTML=`<div class="modal">${html}</div>`;
+  const f=o.querySelector("input[autofocus],input"); if(f) setTimeout(()=>f.focus(),50);
+}
+function closeModal(){ const o=document.getElementById("overlay"); if(o) o.remove(); render(); }
+/* Esc로 열린 모달 닫기 */
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape" && document.getElementById("overlay")) closeModal();
+});
+
+/* ===== 유틸 ===== */
+function val(id){ const e=document.getElementById(id); return e?e.value:""; }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* 메일의 재설정 링크로 돌아오면 새 비밀번호 창을 띄움 */
+sb.auth.onAuthStateChange((event, s)=>{
+  if(event === "PASSWORD_RECOVERY"){
+    session = s;
+    newPasswordModal();
+  }
+});
+
+/* ===== 시작 ===== */
+(async function boot(){
+  render();                                   // 먼저 화면을 띄우고
+  const { data } = await sb.auth.getSession();// 로그인 상태 복원
+  session = data ? data.session : null;
+  if(isLoggedIn()){
+    await loadProfile();
+    await loadTeams();
+  }
+  render();
+})();
+</script>
+</body>
+</html>

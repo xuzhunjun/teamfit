@@ -912,8 +912,12 @@ function colorForName(name){
 }
 function avatarMarkup(p, cls){
   cls = cls?(" "+cls):"";
-  if(p.avatarImg) return `<span class="avatar${cls}" style="background-image:url('${p.avatarImg}')"></span>`;
-  return `<span class="avatar${cls}" style="background:${p.avatarColor||'#5b6cff'}">${esc(p.avatarEmoji||'🙂')}</span>`;
+  /* 보안: 진짜 base64 이미지 데이터만 허용 (임의 문자열 주입=XSS 차단). 색도 hex만. */
+  const img = p.avatarImg;
+  const okImg = typeof img==="string" && /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(img);
+  if(okImg) return `<span class="avatar${cls}" style="background-image:url('${img}')"></span>`;
+  const col = /^#[0-9a-fA-F]{3,8}$/.test(p.avatarColor||"") ? p.avatarColor : "#5b6cff";
+  return `<span class="avatar${cls}" style="background:${col}">${esc(p.avatarEmoji||'🙂')}</span>`;
 }
 function avatarHtml(who, cls){
   if(who===currentUser()) return avatarMarkup(state, cls);

@@ -402,7 +402,8 @@
   @media(max-width:720px){
     .hero2{grid-template-columns:1fr;gap:28px;padding:36px 4px 20px}
     .nav-menu{gap:0;margin-left:10px}
-    .nav-menu a:nth-child(2){display:none}  /* 모바일에선 '요금제' 숨김, '기능'만 */
+    .nav-menu a{display:none}                 /* 모바일 헤더는 빠듯 → 네비 링크 숨기고 */
+    .nav-menu a.nav-feedback{display:inline}  /* '문의'만 노출 */
     .feat-grid{grid-template-columns:1fr}
   }
 
@@ -1263,7 +1264,8 @@ function renderHome(){
         <div class="brand" onclick="location.reload()" title="새로고침">TeamFit<span class="brand-dot">.</span></div>
         <div class="nav-menu">
           <a onclick="goFeatures()">기능</a>
-          <a onclick="scrollToId('pricing')">요금제</a>
+          <a class="nav-hide-mobile" onclick="scrollToId('pricing')">요금제</a>
+          <a class="nav-feedback" href="${FEEDBACK_URL}" target="_blank" rel="noopener">문의</a>
         </div>
         <div class="nav-btns">
           ${isLoggedIn()
@@ -1417,6 +1419,7 @@ function renderFeatures(){
         <div class="nav-menu">
           <a onclick="goHome()">홈</a>
           <a onclick="scrollToId('f-team')">기능</a>
+          <a class="nav-feedback" href="${FEEDBACK_URL}" target="_blank" rel="noopener">문의</a>
         </div>
         <div class="nav-btns">
           ${isLoggedIn()

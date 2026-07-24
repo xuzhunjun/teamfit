@@ -209,6 +209,13 @@
   .file-name{flex:1;cursor:pointer;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .file-name:hover{color:var(--accent);text-decoration:underline}
   .file-meta{font-size:12px;color:var(--muted);white-space:nowrap}
+  /* 자료 출처별 묶음 */
+  .file-group{margin-bottom:14px}
+  .file-group:last-child{margin-bottom:0}
+  .file-group-head{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--text);
+    margin:0 0 2px;padding-top:4px}
+  .file-group-head .dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .file-group-count{font-size:11px;font-weight:600;color:var(--muted)}
   /* 반복 일정 만들기 버튼 · 미리보기 */
   .repeat-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;
     border:1px dashed var(--line);background:transparent;border-radius:11px;padding:12px;
@@ -1858,22 +1865,30 @@ function renderFileRows(list, opts){
       <button class="del" onclick="delFile('${f.id}','${f.path}')">✕</button>
     </div>`).join("");
 }
-/* 팀 자료함 = 팀에 직접 올린 것 + 과목에서 '전체 공유'한 것 */
-function teamFileFeed(){
-  const out=(T().files||[]).map(f=>Object.assign({},f));
-  (T().subjects||[]).forEach(s=>(s.files||[]).filter(f=>f.shared)
-    .forEach(f=>out.push(Object.assign({},f,{source:s.name, color:s.color||"#5b6cff"}))));
-  return out;
-}
 function renderTeamFiles(){
+  /* 출처별 묶음: 팀 공용 먼저, 그다음 과목별로 '전체 공유'된 자료 */
+  const groups=[];
+  const teamOwn=(T().files||[]);
+  if(teamOwn.length) groups.push({name:"팀 공용", color:TEAM_COLOR, files:teamOwn});
+  (T().subjects||[]).forEach(s=>{
+    const shared=(s.files||[]).filter(f=>f.shared);
+    if(shared.length) groups.push({name:s.name, color:s.color||"#5b6cff", files:shared});
+  });
+  const body = groups.length
+    ? groups.map(g=>`
+        <div class="file-group">
+          <div class="file-group-head"><span class="dot" style="background:${g.color}"></span>${esc(g.name)}<span class="file-group-count">${g.files.length}</span></div>
+          ${renderFileRows(g.files, {})}
+        </div>`).join("")
+    : `<div class="soon">아직 올라온 자료가 없어요.</div>`;
   return `
     <div class="panel">
-      <div class="panel-head"><h3>📎 자료 <span style="font-size:12px;font-weight:500;color:var(--muted)">팀 공용 + 공유된 것</span></h3></div>
-      ${renderFileRows(teamFileFeed(), {})}
+      <div class="panel-head"><h3>📎 자료 <span style="font-size:12px;font-weight:500;color:var(--muted)">출처별로 묶여 있어요</span></h3></div>
+      ${body}
       <label class="repeat-btn" style="margin-top:12px">📎 팀 공용 자료 올리기
         <input type="file" hidden onchange="uploadFile(this, null)">
       </label>
-      <div class="home-note" style="text-align:left">${MAX_FILE_MB}MB 이하 · 우리 팀만 열어볼 수 있어요</div>
+      <div class="home-note" style="text-align:left">${MAX_FILE_MB}MB 이하 · 우리 팀만 열어볼 수 있어요 · 과목 자료는 <b>📢 팀 전체에 공유</b>한 것만 여기 모여요</div>
     </div>`;
 }
 

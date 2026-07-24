@@ -1088,7 +1088,7 @@ function subjectSettings(){
   const s=cur(); if(!s) return;
   const picks = T().members.map(m=>
     `<span class="pick ${(s.members||[]).includes(m)?'on':''}" onclick="this.classList.toggle('on')" data-m="${esc(m)}">${esc(m)}</span>`
-  ).join("") || `<span class="soon">팀에 멤버가 없어요. 먼저 멤버를 추가하세요.</span>`;
+  ).join("") || `<span class="soon">아직 팀원이 없어요. 초대코드로 팀원을 초대해보세요.</span>`;
   const cnt = `일정 ${(s.schedule||[]).length}개 · 자료 ${(s.files||[]).length}개 · 의견 ${(s.comments||[]).length}개 · 역할 ${(s.roles||[]).length}개`;
   showModal(`
     <h3>⚙︎ 과목 설정</h3>
@@ -1318,9 +1318,9 @@ function renderHome(){
           <p>따로따로 관리하던 걸 하나로 모았어요.</p>
         </div>
         <div class="feat-grid">
-          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-files')"><div class="fic">📁</div><h3>자료 정리</h3><p>정리본·과제 파일을 팀과 세부 프로젝트별로 깔끔하게. 흩어진 카톡·메일에서 그만 찾으세요.</p><div class="feat-more">자세히 보기 →</div></div>
+          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-files')"><div class="fic">📁</div><h3>자료 정리</h3><p>정리본·과제 파일을 팀과 과목별로 깔끔하게. 흩어진 카톡·메일에서 그만 찾으세요.</p><div class="feat-more">자세히 보기 →</div></div>
           <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-schedule')"><div class="fic">📅</div><h3>일정 관리</h3><p>과목별 마감과 완료가 하나의 캘린더로 모여요. "이번 주 뭐 있지?"를 한눈에.</p><div class="feat-more">자세히 보기 →</div></div>
-          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-chat')"><div class="fic">💬</div><h3>의견 공유</h3><p>팀·세부 프로젝트별 대화방. 필요한 의견만 전체에 공유하고 나머진 팀 안에서.</p><div class="feat-more">자세히 보기 →</div></div>
+          <div class="feat-card" style="cursor:pointer" onclick="goFeatures('f-chat')"><div class="fic">💬</div><h3>의견 공유</h3><p>팀·과목별 대화방. 필요한 의견만 전체에 공유하고 나머진 팀 안에서.</p><div class="feat-more">자세히 보기 →</div></div>
         </div>
       </section>
 
@@ -2394,7 +2394,7 @@ function addSubject(){
     </div>
     <div class="field">
       <label>참여 멤버 (선택 · 나중에 바꿀 수 있어요)</label>
-      <div class="picks" id="subjPicks">${picks || '<span class="soon">먼저 멤버를 추가하세요</span>'}</div>
+      <div class="picks" id="subjPicks">${picks || '<span class="soon">먼저 초대코드로 팀원을 초대하세요</span>'}</div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">취소</button>

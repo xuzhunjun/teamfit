@@ -1190,6 +1190,7 @@ const USE_CASES = [
   { badge:"📝 조별 과제", title:"역할과 마감을, 첫 회의에서 끝내기",
     story:"“첫 회의 땐 다 정한 것 같았는데, 발표 3일 전에 보면 누가 뭘 하기로 했는지 아무도 정확히 기억을 못 해요. 파일도 ‘최종_최종2’가 여기저기 흩어져 있고요.”",
     steps:[
+      ["초대코드로 모이기","번호·카톡 안 주고받아도, 코드 하나면 낯선 팀원도 바로 합류해요."],
       ["과제별로 만들기","한 학기에 팀플이 여러 개여도 서로 섞이지 않아요."],
       ["역할 적어두기","자료조사·PPT·발표, 누가 뭘 맡았는지 기록으로 남겨요."],
       ["발표일 기준 마감","초안·리허설까지 단계별로 날짜를 잡아둬요."],
@@ -1293,7 +1294,7 @@ function renderHome(){
           <h1 class="hero-title">쉬워진 팀플,<br><span class="grad">TeamFit</span> 하나로 끝.</h1>
           <p class="hero-sub">자료 정리 · 일정 관리 · 의견 공유까지,<br>흩어진 팀플을 한 곳에서.</p>
           <button class="btn btn-primary hero-cta" onclick="${isLoggedIn()?'goTeams()':'signupStart()'}">${isLoggedIn()?'나의 팀플 들어가기 →':'무료로 시작하기 →'}</button>
-          <div class="hero-trust">✓ 설치 없이 웹에서 바로 · 팀원 초대는 <b>코드 하나</b>로</div>
+          <div class="hero-trust">✓ <b>번호·카톡 교환 없이</b> · 초대코드 하나로 · 설치 없이 웹에서 바로</div>
         </div>
         <div class="hero-right">
           <div class="preview">
